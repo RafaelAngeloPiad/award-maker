@@ -105,6 +105,9 @@ export default function AwardCertificate() {
 
   const [borderIcons, setBorderIcons] = useState(true);
   const [borderIconBackdrop, setBorderIconBackdrop] = useState(true);
+  const [edgeBorderOrnaments, setEdgeBorderOrnaments] = useState(true);
+  const [edgeSpaceBorder, setEdgeSpaceBorder] = useState(true);
+  const [border, setBorder] = useState(true);
 
   const handleBackgroundUpload = (file: File) => {
     const reader = new FileReader();
@@ -560,6 +563,72 @@ export default function AwardCertificate() {
                                 </p>
                                 <p className="text-xs text-gray-500">
                                   Toggle the Border icon backdrop
+                                </p>
+                              </div>
+                            </Label>
+                          </div>
+                          <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                            <input
+                              type="checkbox"
+                              id="edgeBorderOrnaments"
+                              checked={edgeBorderOrnaments}
+                              onChange={() => {
+                                setEdgeBorderOrnaments(!edgeBorderOrnaments);
+                              }}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label
+                              htmlFor="edgeBorderOrnaments"
+                              className="ml-3"
+                            >
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium">
+                                  Edge Border Ornaments
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Toggle the Edge border ornaments
+                                </p>
+                              </div>
+                            </Label>
+                          </div>
+                          <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                            <input
+                              type="checkbox"
+                              id="edgeSpaceBorder"
+                              checked={edgeSpaceBorder}
+                              onChange={() => {
+                                setEdgeSpaceBorder(!edgeSpaceBorder);
+                              }}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label htmlFor="edgeSpaceBorder" className="ml-3">
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium">
+                                  Edge Space Border
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Toggle the Edge space border
+                                </p>
+                              </div>
+                            </Label>
+                          </div>
+						  <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                            <input
+                              type="checkbox"
+                              id="border"
+                              checked={border}
+                              onChange={() => {
+                                setBorder(!border);
+                              }}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label htmlFor="border" className="ml-3">
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium">
+                                  Border
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Toggle the Border
                                 </p>
                               </div>
                             </Label>
@@ -1438,13 +1507,15 @@ export default function AwardCertificate() {
             <div className="fixed inset-0 bg-black/100 z-50 flex items-center justify-center p-4 lg:hidden">
               <div className="bg-white rounded-lg p-6 max-w-sm text-center space-y-4">
                 <RotateCcw className="w-12 h-12 mx-auto text-blue-600 animate-spin-slow" />
-                <h3 className="text-xl font-bold text-gray-900">Please Rotate Your Device</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Please Rotate Your Device
+                </h3>
                 <p className="text-gray-600">
                   For the best certificate editing experience:
                 </p>
                 <ul className="text-gray-600 text-sm space-y-2">
                   <li>• Rotate your device to landscape mode</li>
-				  <li>• Set the Browser to Desktop Mode</li>
+                  <li>• Set the Browser to Desktop Mode</li>
                   <li>• Or use a desktop/laptop computer</li>
                 </ul>
                 <p className="text-xs text-gray-500">
@@ -1464,7 +1535,7 @@ export default function AwardCertificate() {
                   <div
                     key={index}
                     ref={(el) => (certificatesRef.current[index] = el)}
-                    className={`relative bg-white border-[10px] rounded-lg shadow-2xl aspect-[3/2]`}
+                    className={`relative bg-white rounded-lg shadow-2xl aspect-[3/2] ${border ? " border-[10px]" : "overflow-hidden"}`}
                     style={{
                       borderColor: ornamentalCornersColor,
                     }}
@@ -1540,7 +1611,7 @@ export default function AwardCertificate() {
                       {borderIcons && (
                         <>
                           <div
-                            className="absolute -top-1 -left-1 z-20"
+                            className={`absolute ${border ? '-top-1 -left-1' : '-top-0 -left-0'} z-20`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1549,7 +1620,7 @@ export default function AwardCertificate() {
                           </div>
 
                           <div
-                            className="absolute -top-1 -right-1 z-20"
+                            className={`absolute ${border ? '-top-1 -right-1' : '-top-0 -right-0'} z-20`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1558,15 +1629,16 @@ export default function AwardCertificate() {
                           </div>
 
                           <div
-                            className="absolute -bottom-1 -left-1 z-20"
+                            className={`absolute ${border ? '-bottom-1 -left-1' : '-bottom-0 -left-0'} z-20`}
                             style={{
                               color: decorativeElementsColor,
                             }}
                           >
                             <Ribbon className="w-6 h-6" />
                           </div>
+
                           <div
-                            className="absolute -bottom-1 -right-1 z-20"
+                            className={`absolute ${border ? '-bottom-1 -right-1' : '-bottom-0 -right-0'} z-20`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1579,46 +1651,45 @@ export default function AwardCertificate() {
                       {borderIconBackdrop && (
                         <>
                           {/* Decoration Backdrop */}
-
                           <div
-                            className="absolute -top-1 -left-1 z-10"
+                            className={`absolute ${border ? '-top-1 -left-1' : '-top-0 -left-0'} z-10`}
                             style={{
                               backgroundColor: ornamentalCornersColor,
-                              width: "40px", // Adjust size as needed
-                              height: "40px", // Adjust size as needed
+                              width: "40px",
+                              height: "40px",
                               clipPath: "polygon(0 100%, 100% 0, 0 0)",
                               color: decorativeElementsColor,
                             }}
                           />
 
                           <div
-                            className="absolute -top-1 -right-1 z-10"
+                            className={`absolute ${border ? '-top-1 -right-1' : '-top-0 -right-0'} z-10`}
                             style={{
                               backgroundColor: ornamentalCornersColor,
-                              width: "40px", // Adjust size as needed
-                              height: "40px", // Adjust size as needed
+                              width: "40px",
+                              height: "40px",
                               clipPath: "polygon(0 0, 100% 100%, 100% 0)",
                               color: decorativeElementsColor,
                             }}
                           />
 
                           <div
-                            className="absolute -bottom-1 -left-1 z-10"
+                            className={`absolute ${border ? '-bottom-1 -left-1' : '-bottom-0 -left-0'} z-10`}
                             style={{
                               backgroundColor: ornamentalCornersColor,
-                              width: "40px", // Adjust size as needed
-                              height: "40px", // Adjust size as needed
+                              width: "40px",
+                              height: "40px",
                               clipPath: "polygon(0 100%, 100% 100%, 0 0)",
                               color: decorativeElementsColor,
                             }}
                           />
 
                           <div
-                            className="absolute -bottom-1 -right-1 z-10"
+                            className={`absolute ${border ? '-bottom-1 -right-1' : '-bottom-0 -right-0'} z-10`}
                             style={{
                               backgroundColor: ornamentalCornersColor,
-                              width: "40px", // Adjust size as needed
-                              height: "40px", // Adjust size as needed
+                              width: "40px",
+                              height: "40px",
                               clipPath: "polygon(0 100%, 100% 100%, 100% 0)",
                               color: decorativeElementsColor,
                             }}
@@ -1627,63 +1698,71 @@ export default function AwardCertificate() {
                       )}
 
                       {/* Ornamental Corners with fixed alignment */}
-                      <div className="absolute inset-0">
-                        {/* Gold borders */}
-                        <div
-                          className="absolute top-0 left-0 w-24 h-24 border-l-8 border-t-8"
-                          style={{
-                            borderColor: ornamentalCornersColor,
-                          }}
-                        />
-                        <div
-                          className="absolute top-0 right-0 w-24 h-24 border-r-8 border-t-8"
-                          style={{
-                            borderColor: ornamentalCornersColor,
-                          }}
-                        />
-                        <div
-                          className="absolute bottom-0 left-0 w-24 h-24 border-l-8 border-b-8"
-                          style={{
-                            borderColor: ornamentalCornersColor,
-                          }}
-                        />
-                        <div
-                          className="absolute bottom-0 right-0 w-24 h-24 border-r-8 border-b-8"
-                          style={{
-                            borderColor: ornamentalCornersColor,
-                          }}
-                        />
+                      {edgeBorderOrnaments && (
+                        <>
+                          <div className="absolute inset-0">
+                            {/* Gold borders */}
+                            <div
+                              className="absolute top-0 left-0 w-24 h-24 border-l-8 border-t-8"
+                              style={{
+                                borderColor: ornamentalCornersColor,
+                              }}
+                            />
+                            <div
+                              className="absolute top-0 right-0 w-24 h-24 border-r-8 border-t-8"
+                              style={{
+                                borderColor: ornamentalCornersColor,
+                              }}
+                            />
+                            <div
+                              className="absolute bottom-0 left-0 w-24 h-24 border-l-8 border-b-8"
+                              style={{
+                                borderColor: ornamentalCornersColor,
+                              }}
+                            />
+                            <div
+                              className="absolute bottom-0 right-0 w-24 h-24 border-r-8 border-b-8"
+                              style={{
+                                borderColor: ornamentalCornersColor,
+                              }}
+                            />
+                          </div>
+                        </>
+                      )}
 
-                        {/* Brown borders positioned below gold */}
-                        <div
-                          className={`absolute top-4 left-4 w-20 h-20 border-l-2 border-t-2 rounded-tl-lg`}
-                          style={{
-                            opacity: topLeftImage ? 0 : 1,
-                            borderColor: decorativeElementsColor,
-                          }}
-                        />
-                        <div
-                          className={`absolute top-4 right-4 w-20 h-20 border-r-2 border-t-2 rounded-tr-lg`}
-                          style={{
-                            opacity: topRightImage ? 0 : 1,
-                            borderColor: decorativeElementsColor,
-                          }}
-                        />
-                        <div
-                          className={`absolute bottom-4 left-4 w-20 h-20 border-l-2 border-b-2 rounded-bl-lg`}
-                          style={{
-                            opacity: bottomLeftImage ? 0 : 1,
-                            borderColor: decorativeElementsColor,
-                          }}
-                        />
-                        <div
-                          className={`absolute bottom-4 right-4 w-20 h-20 border-r-2 border-b-2 rounded-br-lg`}
-                          style={{
-                            opacity: bottomRightImage ? 0 : 1,
-                            borderColor: decorativeElementsColor,
-                          }}
-                        />
-                      </div>
+                      {edgeSpaceBorder && (
+                        <>
+                          {/* Brown borders positioned below gold */}
+                          <div
+                            className={`absolute top-4 left-4 w-20 h-20 border-l-2 border-t-2 rounded-tl-lg`}
+                            style={{
+                              opacity: topLeftImage ? 0 : 1,
+                              borderColor: decorativeElementsColor,
+                            }}
+                          />
+                          <div
+                            className={`absolute top-4 right-4 w-20 h-20 border-r-2 border-t-2 rounded-tr-lg`}
+                            style={{
+                              opacity: topRightImage ? 0 : 1,
+                              borderColor: decorativeElementsColor,
+                            }}
+                          />
+                          <div
+                            className={`absolute bottom-4 left-4 w-20 h-20 border-l-2 border-b-2 rounded-bl-lg`}
+                            style={{
+                              opacity: bottomLeftImage ? 0 : 1,
+                              borderColor: decorativeElementsColor,
+                            }}
+                          />
+                          <div
+                            className={`absolute bottom-4 right-4 w-20 h-20 border-r-2 border-b-2 rounded-br-lg`}
+                            style={{
+                              opacity: bottomRightImage ? 0 : 1,
+                              borderColor: decorativeElementsColor,
+                            }}
+                          />
+                        </>
+                      )}
 
                       {/* Certificate Content */}
                       <div
@@ -1746,6 +1825,7 @@ export default function AwardCertificate() {
                               className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-transparent to-transparent"
                               style={{
                                 backgroundImage: `linear-gradient(to right, transparent, ${decorativeElementsColor}, transparent)`,
+								opacity: topRightImage ? 0 : 1
                               }}
                             />
 
@@ -1753,6 +1833,7 @@ export default function AwardCertificate() {
                               className="w-6 h-6"
                               style={{
                                 color: decorativeElementsColor,
+								opacity: topRightImage ? 0 : 1
                               }}
                             />
                           </div>
