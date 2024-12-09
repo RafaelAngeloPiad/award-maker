@@ -22,6 +22,7 @@ import {
   Settings2,
   CheckCircle2,
   AlertCircle,
+  RotateCcw,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -1431,6 +1432,25 @@ export default function AwardCertificate() {
               <h2 className="text-3xl font-bold text-gray-800">
                 Certificate Preview
               </h2>
+            </div>
+
+            {/* Full-Screen Mobile Warning Overlay */}
+            <div className="fixed inset-0 bg-black/100 z-50 flex items-center justify-center p-4 lg:hidden">
+              <div className="bg-white rounded-lg p-6 max-w-sm text-center space-y-4">
+                <RotateCcw className="w-12 h-12 mx-auto text-blue-600 animate-spin-slow" />
+                <h3 className="text-xl font-bold text-gray-900">Please Rotate Your Device</h3>
+                <p className="text-gray-600">
+                  For the best certificate editing experience:
+                </p>
+                <ul className="text-gray-600 text-sm space-y-2">
+                  <li>• Rotate your device to landscape mode</li>
+				  <li>• Set the Browser to Desktop Mode</li>
+                  <li>• Or use a desktop/laptop computer</li>
+                </ul>
+                <p className="text-xs text-gray-500">
+                  The certificate editor requires a wider screen for optimal use
+                </p>
+              </div>
             </div>
 
             {/* Scrollable container for certificates */}
