@@ -1,4 +1,6 @@
-# 🏆 Award Certificate Generator
+# 🏆 Award Certificate Generator (Open Source)
+
+### Beta Version 1.0.0 (December 2024)
 
 A modern, user-friendly web application for creating and managing beautiful award certificates in bulk. Perfect for schools, organizations, and events where multiple certificates need to be generated with consistent styling.
 
