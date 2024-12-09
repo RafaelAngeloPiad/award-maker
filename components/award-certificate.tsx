@@ -24,42 +24,12 @@ import {
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-interface Signatory {
-  name: string;
-  title: string;
-}
-
-interface Award {
-  recipient: string;
-  title: string;
-  description: string;
-}
-
-const initialAwards: Award[] = [
-  {
-    recipient: "John Doe",
-    title: "Outstanding Achievement in Science",
-    description: "For exceptional performance in the annual science fair"
-  },
-  {
-    recipient: "Jane Smith",
-    title: "Excellence in Leadership",
-    description:
-      "For demonstrating remarkable leadership skills in group projects"
-  }
-];
-
-const initialSignatories: Signatory[] = [
-  { name: "Emma Davis", title: "Principal" },
-  { name: "Robert Wilson", title: "Program Coordinator" },
-  { name: "Lisa Thompson", title: "Head Teacher" }
-];
+import type { AwardCertificate } from "@/lib/certificate-data";
+import { Signatory, initialAwards, initialSignatories } from "@/lib/certificate-data";
 
 export default function AwardCertificate() {
-  const [awards, setAwards] = useState<Award[]>(initialAwards);
-  const [signatories, setSignatories] =
-    useState<Signatory[]>(initialSignatories);
+  const [awards, setAwards] = useState<AwardCertificate[]>(initialAwards);
+  const [signatories, setSignatories] = useState<Signatory[]>(initialSignatories);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [topRightImage, setTopRightImage] = useState<string | null>(null);
   const [topLeftImage, setTopLeftImage] = useState<string | null>(null);
@@ -80,7 +50,7 @@ export default function AwardCertificate() {
     useState("#8b7355"); // New state variable
   const certificatesRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  const [newAward, setNewAward] = useState<Award>({
+  const [newAward, setNewAward] = useState<AwardCertificate>({
     recipient: "",
     title: "",
     description: ""
@@ -232,7 +202,7 @@ export default function AwardCertificate() {
             </h1>
           </div>
 
-          <Tabs defaultValue="images" className="w-full">
+          <Tabs defaultValue="general" className="w-full">
             <TabsList className="w-full grid grid-cols-7 gap-2 mb-20">
               <TabsTrigger
                 value="general"
@@ -342,9 +312,8 @@ export default function AwardCertificate() {
                             >
                               Presentation Text
                             </Label>
-                            <Input
+                            <Textarea
                               id="presentationText"
-                              type="text"
                               value={presentationText}
                               onChange={(e) =>
                                 setPresentationText(e.target.value)
@@ -369,7 +338,7 @@ export default function AwardCertificate() {
                             certificates
                           </li>
                           <li>
-                            • Presentation text appears above recipient's name
+                            • Presentation text appears above recipient&apos;s name
                           </li>
                           <li>• Keep text formal and professional</li>
                           <li>• Changes apply to all certificates</li>
@@ -1104,52 +1073,64 @@ export default function AwardCertificate() {
                     style={{ borderColor: ornamentalCornersColor }}
                   >
                     {/* Background Image */}
-                    {backgroundImage && (
-                      <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{
-                          backgroundImage: `url(${backgroundImage})`,
-                          opacity: backgroundOpacity
-                        }}
-                      />
-                    )}
-                    {/* Corner Images */}
-                    {topLeftImage && (
-                      <div
-                        className="absolute top-4 left-4 w-24 h-24 bg-cover bg-center"
-                        style={{
-                          backgroundImage: `url(${topLeftImage})`,
-                          opacity: cornerOpacity
-                        }}
-                      />
-                    )}
-                    {topRightImage && (
-                      <div
-                        className="absolute top-4 right-4 w-24 h-24 bg-cover bg-center"
-                        style={{
-                          backgroundImage: `url(${topRightImage})`,
-                          opacity: cornerOpacity
-                        }}
-                      />
-                    )}
-                    {bottomLeftImage && (
-                      <div
-                        className="absolute bottom-4 left-4 w-24 h-24 bg-cover bg-center"
-                        style={{
-                          backgroundImage: `url(${bottomLeftImage})`,
-                          opacity: cornerOpacity
-                        }}
-                      />
-                    )}
-                    {bottomRightImage && (
-                      <div
-                        className="absolute bottom-4 right-4 w-24 h-24 bg-cover bg-center"
-                        style={{
-                          backgroundImage: `url(${bottomRightImage})`,
-                          opacity: cornerOpacity
-                        }}
-                      />
-                    )}
+                    <div className="text-center py-4">
+                      {backgroundImage && (
+                        <div
+                          className="absolute inset-0 bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url(${backgroundImage})`,
+                            opacity: backgroundOpacity
+                          }}
+                          role="presentation"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {/* Corner Images */}
+                      {topLeftImage && (
+                        <div
+                          className="absolute top-4 left-4 w-24 h-24 bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url(${topLeftImage})`,
+                            opacity: cornerOpacity
+                          }}
+                          role="presentation"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {topRightImage && (
+                        <div
+                          className="absolute top-4 right-4 w-24 h-24 bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url(${topRightImage})`,
+                            opacity: cornerOpacity
+                          }}
+                          role="presentation"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {bottomLeftImage && (
+                        <div
+                          className="absolute bottom-4 left-4 w-24 h-24 bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url(${bottomLeftImage})`,
+                            opacity: cornerOpacity
+                          }}
+                          role="presentation"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {bottomRightImage && (
+                        <div
+                          className="absolute bottom-4 right-4 w-24 h-24 bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url(${bottomRightImage})`,
+                            opacity: cornerOpacity
+                          }}
+                          role="presentation"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </div>
 
                     {/* Decorative Elements */}
                     <div
