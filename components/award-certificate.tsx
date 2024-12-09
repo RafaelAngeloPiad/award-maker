@@ -50,6 +50,76 @@ type AlertStatus = {
   title: string;
 };
 
+const defaultBackgrounds = [
+  {
+    id: "1",
+    name: "1",
+    url: "/backgrounds/1.png",
+  },
+  {
+    id: "2",
+    name: "2",
+    url: "/backgrounds/2.png",
+  },
+  {
+    id: "3",
+    name: "3",
+    url: "/backgrounds/3.png",
+  },
+  {
+    id: "4",
+    name: "4",
+    url: "/backgrounds/4.png",
+  },
+  {
+    id: "5",
+    name: "5",
+    url: "/backgrounds/5.png",
+  },
+  {
+    id: "6",
+    name: "6",
+    url: "/backgrounds/6.png",
+  },
+  {
+    id: "7",
+    name: "7",
+    url: "/backgrounds/7.png",
+  },
+  {
+    id: "8",
+    name: "8",
+    url: "/backgrounds/8.png",
+  },
+  {
+    id: "9",
+    name: "9",
+    url: "/backgrounds/9.png",
+  },
+  {
+    id: "10",
+    name: "10",
+    url: "/backgrounds/10.png",
+  },
+  {
+    id: "11",
+    name: "11",
+    url: "/backgrounds/11.png",
+  },
+  {
+    id: "12",
+    name: "12",
+    url: "/backgrounds/12.png",
+  },
+  {
+    id: "13",
+    name: "13",
+    url: "/backgrounds/13.png",
+  },
+
+  // Add more default backgrounds as needed
+];
+
 export default function AwardCertificate() {
   const [awards, setAwards] = useState<AwardCertificate[]>(initialAwards);
   const [signatories, setSignatories] =
@@ -115,7 +185,9 @@ export default function AwardCertificate() {
   const [mainTitleFont, setMainTitleFont] = useState("var(--font-geist-sans)");
   const [titleFont, setTitleFont] = useState("var(--font-geist-sans)");
   const [recipientFont, setRecipientFont] = useState("var(--font-geist-sans)");
-  const [descriptionFont, setDescriptionFont] = useState("var(--font-geist-sans)");
+  const [descriptionFont, setDescriptionFont] = useState(
+    "var(--font-geist-sans)"
+  );
   const [signatoryFont, setSignatoryFont] = useState("var(--font-geist-sans)");
 
   const fontOptions = [
@@ -152,6 +224,10 @@ export default function AwardCertificate() {
     const reader = new FileReader();
     reader.onload = (e) => setBottomLeftImage(e.target?.result as string);
     reader.readAsDataURL(file);
+  };
+
+  const handleDefaultBackgroundSelect = (url: string) => {
+    setBackgroundImage(url);
   };
 
   const exportToPDF = async () => {
@@ -627,7 +703,7 @@ export default function AwardCertificate() {
                               </div>
                             </Label>
                           </div>
-						  <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                          <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
                             <input
                               type="checkbox"
                               id="border"
@@ -639,9 +715,7 @@ export default function AwardCertificate() {
                             />
                             <Label htmlFor="border" className="ml-3">
                               <div className="space-y-1">
-                                <p className="text-sm font-medium">
-                                  Border
-                                </p>
+                                <p className="text-sm font-medium">Border</p>
                                 <p className="text-xs text-gray-500">
                                   Toggle the Border
                                 </p>
@@ -757,10 +831,77 @@ export default function AwardCertificate() {
                         </h3>
                         <div className="grid grid-cols-1 gap-4">
                           <label className="text-base">For Background : </label>
-                          <FileUpload
-                            onFileSelect={handleBackgroundUpload}
-                            label="Background"
-                          />
+                          <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+                            <h3 className="text-sm font-medium text-gray-700 mb-4">
+                              Background Options
+                            </h3>
+
+                            {/* Default Backgrounds */}
+                            <div className="space-y-4">
+                              <Label className="text-sm">
+                                Choose from Default Backgrounds
+                              </Label>
+                              <div className="grid grid-cols-2 gap-4">
+                                {defaultBackgrounds.map((bg) => (
+                                  <button
+                                    key={bg.id}
+                                    onClick={() =>
+                                      handleDefaultBackgroundSelect(bg.url)
+                                    }
+                                    className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
+                                      backgroundImage === bg.url
+                                        ? "border-blue-500 ring-2 ring-blue-200"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    }`}
+                                  >
+                                    <img
+                                      src={bg.url}
+                                      alt={bg.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                      <span className="text-white text-sm font-medium">
+                                        {bg.name}
+                                      </span>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="relative my-8">
+                              <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-gray-200" />
+                              </div>
+                              <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-gray-50 text-gray-500">
+                                  Or
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Custom Upload */}
+                            <div className="space-y-4">
+                              <Label className="text-sm">
+                                Upload Custom Background
+                              </Label>
+                              <FileUpload
+                                onFileSelect={handleBackgroundUpload}
+                                label="Upload Background"
+                              />
+                            </div>
+                            {backgroundImage && (
+                              <Button
+                                onClick={() => setBackgroundImage(null)}
+                                variant="outline"
+                                className="mt-4 w-full text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Remove Background
+                              </Button>
+                            )}
+                          </div>
                           <label className="text-base">
                             For Corner Images :{" "}
                           </label>
@@ -769,21 +910,61 @@ export default function AwardCertificate() {
                             onFileSelect={handleTopLeftUpload}
                             label="Top Left"
                           />
+                          {topLeftImage && (
+                            <Button
+                              onClick={() => setTopLeftImage(null)}
+                              variant="outline"
+                              className="mt-4 w-full text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove Top Left
+                            </Button>
+                          )}
                           <label className="text-sm">Top Right : </label>
                           <FileUpload
                             onFileSelect={handleTopRightUpload}
                             label="Top Right"
                           />
+                          {topRightImage && (
+                            <Button
+                              onClick={() => setTopRightImage(null)}
+                              variant="outline"
+                              className="mt-4 w-full text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove Top Right
+                            </Button>
+                          )}
                           <label className="text-sm">Bottom Left : </label>
                           <FileUpload
                             onFileSelect={handleBottomLeftUpload}
                             label="Bottom Left"
                           />
+                          {bottomLeftImage && (
+                            <Button
+                              onClick={() => setBottomLeftImage(null)}
+                              variant="outline"
+                              className="mt-4 w-full text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove Bottom Left
+                            </Button>
+                          )}
                           <label className="text-sm">Bottom Right : </label>
                           <FileUpload
                             onFileSelect={handleBottomRightUpload}
                             label="Bottom Right"
                           />
+                          {bottomRightImage && (
+                            <Button
+                              onClick={() => setBottomRightImage(null)}
+                              variant="outline"
+                              className="mt-4 w-full text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove Bottom Right
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -919,7 +1100,9 @@ export default function AwardCertificate() {
                               step="0.1"
                               value={bottomRightOpacity}
                               onChange={(e) =>
-                                setBottomRightOpacity(parseFloat(e.target.value))
+                                setBottomRightOpacity(
+                                  parseFloat(e.target.value)
+                                )
                               }
                               className="flex-1"
                             />
@@ -1686,7 +1869,9 @@ export default function AwardCertificate() {
                   <div
                     key={index}
                     ref={(el) => (certificatesRef.current[index] = el)}
-                    className={`relative bg-white rounded-lg shadow-2xl aspect-[3/2] ${border ? " border-[10px]" : "overflow-hidden"}`}
+                    className={`relative bg-white rounded-lg shadow-2xl aspect-[3/2] ${
+                      border ? " border-[10px]" : "overflow-hidden"
+                    }`}
                     style={{
                       borderColor: ornamentalCornersColor,
                     }}
@@ -1762,7 +1947,9 @@ export default function AwardCertificate() {
                       {borderIcons && (
                         <>
                           <div
-                            className={`absolute ${border ? '-top-1 -left-1' : '-top-0 -left-0'} z-20`}
+                            className={`absolute ${
+                              border ? "-top-1 -left-1" : "-top-0 -left-0"
+                            } z-20`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1771,7 +1958,9 @@ export default function AwardCertificate() {
                           </div>
 
                           <div
-                            className={`absolute ${border ? '-top-1 -right-1' : '-top-0 -right-0'} z-20`}
+                            className={`absolute ${
+                              border ? "-top-1 -right-1" : "-top-0 -right-0"
+                            } z-20`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1780,7 +1969,9 @@ export default function AwardCertificate() {
                           </div>
 
                           <div
-                            className={`absolute ${border ? '-bottom-1 -left-1' : '-bottom-0 -left-0'} z-20`}
+                            className={`absolute ${
+                              border ? "-bottom-1 -left-1" : "-bottom-0 -left-0"
+                            } z-20`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1789,7 +1980,11 @@ export default function AwardCertificate() {
                           </div>
 
                           <div
-                            className={`absolute ${border ? '-bottom-1 -right-1' : '-bottom-0 -right-0'} z-20`}
+                            className={`absolute ${
+                              border
+                                ? "-bottom-1 -right-1"
+                                : "-bottom-0 -right-0"
+                            } z-20`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1803,7 +1998,9 @@ export default function AwardCertificate() {
                         <>
                           {/* Decoration Backdrop */}
                           <div
-                            className={`absolute ${border ? '-top-1 -left-1' : '-top-0 -left-0'} z-10`}
+                            className={`absolute ${
+                              border ? "-top-1 -left-1" : "-top-0 -left-0"
+                            } z-10`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1817,7 +2014,9 @@ export default function AwardCertificate() {
                           </div>
 
                           <div
-                            className={`absolute ${border ? '-top-1 -right-1' : '-top-0 -right-0'} z-10`}
+                            className={`absolute ${
+                              border ? "-top-1 -right-1" : "-top-0 -right-0"
+                            } z-10`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1831,7 +2030,9 @@ export default function AwardCertificate() {
                           </div>
 
                           <div
-                            className={`absolute ${border ? '-bottom-1 -left-1' : '-bottom-0 -left-0'} z-10`}
+                            className={`absolute ${
+                              border ? "-bottom-1 -left-1" : "-bottom-0 -left-0"
+                            } z-10`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1845,7 +2046,11 @@ export default function AwardCertificate() {
                           </div>
 
                           <div
-                            className={`absolute ${border ? '-bottom-1 -right-1' : '-bottom-0 -right-0'} z-10`}
+                            className={`absolute ${
+                              border
+                                ? "-bottom-1 -right-1"
+                                : "-bottom-0 -right-0"
+                            } z-10`}
                             style={{
                               color: decorativeElementsColor,
                             }}
@@ -1989,7 +2194,7 @@ export default function AwardCertificate() {
                               className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-transparent to-transparent"
                               style={{
                                 backgroundImage: `linear-gradient(to right, transparent, ${decorativeElementsColor}, transparent)`,
-								opacity: topRightImage ? 0 : 1
+                                opacity: topRightImage ? 0 : 1,
                               }}
                             />
 
@@ -1997,7 +2202,7 @@ export default function AwardCertificate() {
                               className="w-6 h-6"
                               style={{
                                 color: decorativeElementsColor,
-								opacity: topRightImage ? 0 : 1
+                                opacity: topRightImage ? 0 : 1,
                               }}
                             />
                           </div>
