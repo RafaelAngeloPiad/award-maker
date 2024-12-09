@@ -19,13 +19,24 @@ import {
   UserSquare,
   Palette,
   Download,
-  Settings2
+  Settings2,
+  CheckCircle2,
+  AlertCircle
 } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { AwardCertificate } from "@/lib/certificate-data";
 import { Signatory, initialAwards, initialSignatories } from "@/lib/certificate-data";
+import { parseAwardsCSV, parseSignatoriesCSV, generateAwardsCSV, generateSignatoriesCSV, generateAwardsTemplate, generateSignatoriesTemplate } from '@/lib/csv-utils';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+type AlertStatus = {
+  show: boolean;
+  type: 'success' | 'error';
+  message: string;
+  title: string;
+};
 
 export default function AwardCertificate() {
   const [awards, setAwards] = useState<AwardCertificate[]>(initialAwards);
@@ -71,6 +82,13 @@ export default function AwardCertificate() {
   const [presentationText, setPresentationText] = useState(
     "This certificate is proudly presented to:"
   );
+
+  const [importAlert, setImportAlert] = useState<AlertStatus>({
+    show: false,
+    type: 'success',
+    message: '',
+    title: ''
+  });
 
   const handleBackgroundUpload = (file: File) => {
     const reader = new FileReader();
@@ -189,6 +207,118 @@ export default function AwardCertificate() {
     setSignatories(signatories.filter((_, i) => i !== index));
   };
 
+  const handleAwardsCSVImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const awards = parseAwardsCSV(content);
+          setAwards(awards);
+          setImportAlert({
+            show: true,
+            type: 'success',
+            title: 'Awards Imported',
+            message: `Successfully imported ${awards.length} awards`
+          });
+          setTimeout(() => {
+            setImportAlert(prev => ({ ...prev, show: false }));
+          }, 3000);
+        } catch (error) {
+          setImportAlert({
+            show: true,
+            type: 'error',
+            title: 'Import Failed',
+            message: 'Please check your CSV format and try again'
+          });
+          setTimeout(() => {
+            setImportAlert(prev => ({ ...prev, show: false }));
+          }, 3000);
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleSignatoriesCSVImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const signatories = parseSignatoriesCSV(content);
+          setSignatories(signatories);
+          setImportAlert({
+            show: true,
+            type: 'success',
+            title: 'Signatories Imported',
+            message: `Successfully imported ${signatories.length} signatories`
+          });
+          setTimeout(() => {
+            setImportAlert(prev => ({ ...prev, show: false }));
+          }, 3000);
+        } catch (error) {
+          setImportAlert({
+            show: true,
+            type: 'error',
+            title: 'Import Failed',
+            message: 'Please check your CSV format and try again'
+          });
+          setTimeout(() => {
+            setImportAlert(prev => ({ ...prev, show: false }));
+          }, 3000);
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const exportAwardsCSV = () => {
+    const csv = generateAwardsCSV(awards);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'awards.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const exportSignatoriesCSV = () => {
+    const csv = generateSignatoriesCSV(signatories);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'signatories.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadAwardsTemplate = () => {
+    const csv = generateAwardsTemplate();
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'awards-template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadSignatoriesTemplate = () => {
+    const csv = generateSignatoriesTemplate();
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'signatories-template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-[#f8f4e8] p-4">
       {/* Main container with side-by-side layout */}
@@ -264,10 +394,38 @@ export default function AwardCertificate() {
               >
                 <div className="flex flex-col items-center gap-2 py-3 px-2">
                   <Download className="w-4 h-4" />
-                  <span className="text-sm font-medium">Export</span>
+                  <span className="text-sm font-medium">Import/Export</span>
                 </div>
               </TabsTrigger>
             </TabsList>
+
+            {importAlert.show && (
+              <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2">
+                <Alert 
+                  className={`w-96 ${
+                    importAlert.type === 'success' 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-red-50 border-red-200'
+                  }`}
+                >
+                  {importAlert.type === 'success' ? (
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <AlertTitle className={`${
+                    importAlert.type === 'success' ? 'text-green-800' : 'text-red-800'
+                  }`}>
+                    {importAlert.title}
+                  </AlertTitle>
+                  <AlertDescription className={`${
+                    importAlert.type === 'success' ? 'text-green-700' : 'text-red-700'
+                  }`}>
+                    {importAlert.message}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
 
             <div className="bg-white rounded-lg shadow-sm p-6">
               <TabsContent value="general" className="mt-0">
@@ -1025,22 +1183,137 @@ export default function AwardCertificate() {
                   <div className="flex items-center justify-between border-b pb-4">
                     <div className="space-y-1">
                       <h2 className="text-xl font-semibold text-gray-800">
-                        Export Options
+                        Import/Export Options
                       </h2>
                       <p className="text-sm text-gray-500">
-                        Download certificates as PDF
+                        Import/Export data and certificates
                       </p>
                     </div>
                     <Download className="w-5 h-5 text-gray-400" />
                   </div>
-                  <div className="flex justify-center">
-                    <Button
-                      onClick={exportToPDF}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-md flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      Export to PDF
-                    </Button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Import Section */}
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+                        <h3 className="text-sm font-medium text-gray-700 mb-4">Import Data</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flex justify-between items-center mb-2">
+                              <Label htmlFor="awardsImport" className="text-sm">
+                                Import Awards CSV
+                              </Label>
+                              <Button
+                                onClick={downloadAwardsTemplate}
+                                variant="outline"
+                                size="sm"
+                                className="text-xs"
+                              >
+                                Download Template
+                              </Button>
+                            </div>
+                            <Input
+                              id="awardsImport"
+                              type="file"
+                              accept=".csv"
+                              onChange={handleAwardsCSVImport}
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <div className="flex justify-between items-center mb-2">
+                              <Label htmlFor="signatoriesImport" className="text-sm">
+                                Import Signatories CSV
+                              </Label>
+                              <Button
+                                onClick={downloadSignatoriesTemplate}
+                                variant="outline"
+                                size="sm"
+                                className="text-xs"
+                              >
+                                Download Template
+                              </Button>
+                            </div>
+                            <Input
+                              id="signatoriesImport"
+                              type="file"
+                              accept=".csv"
+                              onChange={handleSignatoriesCSVImport}
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Enhanced Tips Card */}
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <h3 className="text-sm font-medium text-blue-800 mb-2">
+                          CSV Format Guide
+                        </h3>
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-sm font-medium text-blue-800">Awards CSV Format:</p>
+                            <code className="text-xs text-blue-700 block mt-1 bg-blue-50/50 p-2 rounded">
+                              recipient,title,description
+                            </code>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-blue-800">Signatories CSV Format:</p>
+                            <code className="text-xs text-blue-700 block mt-1 bg-blue-50/50 p-2 rounded">
+                              name,title
+                            </code>
+                          </div>
+                          <ul className="text-sm text-blue-700 space-y-1 mt-2">
+                            <li>• Download templates for correct format</li>
+                            <li>• Make sure to include all required columns</li>
+                            <li>• Save files in CSV format</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Export Section */}
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+                        <h3 className="text-sm font-medium text-gray-700 mb-4">Export Data</h3>
+                        <div className="space-y-4">
+                          <Button
+                            onClick={exportAwardsCSV}
+                            className="w-full bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Export Awards CSV
+                          </Button>
+                          <Button
+                            onClick={exportSignatoriesCSV}
+                            className="w-full bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Export Signatories CSV
+                          </Button>
+                          <Button
+                            onClick={exportToPDF}
+                            className="w-full bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Export Certificates PDF
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Tips Card */}
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <h3 className="text-sm font-medium text-blue-800 mb-2">
+                          Import/Export Tips
+                        </h3>
+                        <ul className="text-sm text-blue-700 space-y-1">
+                          <li>• CSV files should include headers: recipient, title, description</li>
+                          <li>• For signatories: name, title</li>
+                          <li>• Export your data before making major changes</li>
+                          <li>• PDF export includes all current certificates</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </TabsContent>
@@ -1388,7 +1661,11 @@ export default function AwardCertificate() {
                               {signatory.name}
                             </p>
                             <div
-                              className="w-32 border-t-2 my-1"
+                              className={`w-32 border-t-2 my-1 ${
+                                certificateStyle === "wide"
+                                  ? "mx-16"
+                                  : "mx-8"
+                              }`}
                               style={{ borderColor: decorativeElementsColor }}
                             />
                             <p
