@@ -60,10 +60,7 @@ export default function AwardCertificate() {
   const [bottomRightImage, setBottomRightImage] = useState<string | null>(null);
   const [bottomLeftImage, setBottomLeftImage] = useState<string | null>(null);
   const [backgroundOpacity, setBackgroundOpacity] = useState(0.1);
-  const [topLeftOpacity, setTopLeftOpacity] = useState(0.2);
-  const [topRightOpacity, setTopRightOpacity] = useState(0.2);
-  const [bottomLeftOpacity, setBottomLeftOpacity] = useState(0.2);
-  const [bottomRightOpacity, setBottomRightOpacity] = useState(0.2);
+  const [cornerOpacity, setCornerOpacity] = useState(0.2);
   const [titleColor, setTitleColor] = useState("#5d4037");
   const [recipientColor, setRecipientColor] = useState("#2c3e50");
   const [descriptionColor, setDescriptionColor] = useState("#5d4037");
@@ -824,102 +821,24 @@ export default function AwardCertificate() {
                           <div className="space-y-2">
                             <div className="flex justify-between">
                               <Label
-                                htmlFor="topLeftOpacity"
+                                htmlFor="cornerOpacity"
                                 className="text-sm"
                               >
-                                Top Left Corner Opacity
+                                Corner Images Opacity
                               </Label>
                               <span className="text-sm text-gray-500">
-                                {(topLeftOpacity * 100).toFixed(0)}%
+                                {(cornerOpacity * 100).toFixed(0)}%
                               </span>
                             </div>
                             <Input
-                              id="topLeftOpacity"
+                              id="cornerOpacity"
                               type="range"
                               min="0"
                               max="1"
                               step="0.1"
-                              value={topLeftOpacity}
+                              value={cornerOpacity}
                               onChange={(e) =>
-                                setTopLeftOpacity(parseFloat(e.target.value))
-                              }
-                              className="flex-1"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <Label
-                                htmlFor="topRightOpacity"
-                                className="text-sm"
-                              >
-                                Top Right Corner Opacity
-                              </Label>
-                              <span className="text-sm text-gray-500">
-                                {(topRightOpacity * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                            <Input
-                              id="topRightOpacity"
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.1"
-                              value={topRightOpacity}
-                              onChange={(e) =>
-                                setTopRightOpacity(parseFloat(e.target.value))
-                              }
-                              className="flex-1"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <Label
-                                htmlFor="bottomLeftOpacity"
-                                className="text-sm"
-                              >
-                                Bottom Left Corner Opacity
-                              </Label>
-                              <span className="text-sm text-gray-500">
-                                {(bottomLeftOpacity * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                            <Input
-                              id="bottomLeftOpacity"
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.1"
-                              value={bottomLeftOpacity}
-                              onChange={(e) =>
-                                setBottomLeftOpacity(parseFloat(e.target.value))
-                              }
-                              className="flex-1"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <Label
-                                htmlFor="bottomRightOpacity"
-                                className="text-sm"
-                              >
-                                Bottom Right Corner Opacity
-                              </Label>
-                              <span className="text-sm text-gray-500">
-                                {(bottomRightOpacity * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                            <Input
-                              id="bottomRightOpacity"
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.1"
-                              value={bottomRightOpacity}
-                              onChange={(e) =>
-                                setBottomRightOpacity(parseFloat(e.target.value))
+                                setCornerOpacity(parseFloat(e.target.value))
                               }
                               className="flex-1"
                             />
@@ -1713,7 +1632,7 @@ export default function AwardCertificate() {
                             className="absolute top-4 left-4 w-24 h-24 bg-cover bg-center"
                             style={{
                               backgroundImage: `url(${topLeftImage})`,
-                              opacity: topLeftOpacity,
+                              opacity: cornerOpacity,
                             }}
                             role="presentation"
                             aria-hidden="true"
@@ -1725,7 +1644,7 @@ export default function AwardCertificate() {
                             className="absolute top-4 right-4 w-24 h-24 bg-cover bg-center"
                             style={{
                               backgroundImage: `url(${topRightImage})`,
-                              opacity: topRightOpacity,
+                              opacity: cornerOpacity,
                             }}
                             role="presentation"
                             aria-hidden="true"
@@ -1737,7 +1656,7 @@ export default function AwardCertificate() {
                             className="absolute bottom-4 left-4 w-24 h-24 bg-cover bg-center"
                             style={{
                               backgroundImage: `url(${bottomLeftImage})`,
-                              opacity: bottomLeftOpacity,
+                              opacity: cornerOpacity,
                             }}
                             role="presentation"
                             aria-hidden="true"
@@ -1749,7 +1668,7 @@ export default function AwardCertificate() {
                             className="absolute bottom-4 right-4 w-24 h-24 bg-cover bg-center"
                             style={{
                               backgroundImage: `url(${bottomRightImage})`,
-                              opacity: bottomRightOpacity,
+                              opacity: cornerOpacity,
                             }}
                             role="presentation"
                             aria-hidden="true"
