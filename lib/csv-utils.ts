@@ -1,5 +1,5 @@
 import { AwardCertificate, Signatory } from './certificate-data';
-import Papa from 'papaparse'; // You'll need to install this: npm install papaparse @types/papaparse
+import Papa from 'papaparse';
 
 // Sample data for templates
 const sampleAwards: AwardCertificate[] = [
@@ -26,9 +26,30 @@ const sampleSignatories: Signatory[] = [
   }
 ];
 
+interface CSVAwardRow {
+  recipient: string;
+  title: string;
+  description: string;
+}
+
+interface CSVSignatoryRow {
+  name: string;
+  title: string;
+}
+
+interface ParseResult<T> {
+  data: T[];
+  errors: Papa.ParseError[];
+  meta: Papa.ParseMeta;
+}
+
 export const parseAwardsCSV = (csvContent: string): AwardCertificate[] => {
-  const { data } = Papa.parse(csvContent, { header: true });
-  return data.map((row: any) => ({
+  const { data } = Papa.parse<CSVAwardRow>(csvContent, {
+    header: true,
+    transform: (value) => value.trim()
+  }) as ParseResult<CSVAwardRow>;
+
+  return data.map((row) => ({
     recipient: row.recipient || '',
     title: row.title || '',
     description: row.description || ''
@@ -36,8 +57,12 @@ export const parseAwardsCSV = (csvContent: string): AwardCertificate[] => {
 };
 
 export const parseSignatoriesCSV = (csvContent: string): Signatory[] => {
-  const { data } = Papa.parse(csvContent, { header: true });
-  return data.map((row: any) => ({
+  const { data } = Papa.parse<CSVSignatoryRow>(csvContent, {
+    header: true,
+    transform: (value) => value.trim()
+  }) as ParseResult<CSVSignatoryRow>;
+
+  return data.map((row) => ({
     name: row.name || '',
     title: row.title || ''
   }));
@@ -51,7 +76,6 @@ export const generateSignatoriesCSV = (signatories: Signatory[]): string => {
   return Papa.unparse(signatories);
 };
 
-// New template generation functions
 export const generateAwardsTemplate = (): string => {
   return Papa.unparse(sampleAwards);
 };

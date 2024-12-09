@@ -21,26 +21,39 @@ import {
   Download,
   Settings2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Dot
 } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { AwardCertificate } from "@/lib/certificate-data";
-import { Signatory, initialAwards, initialSignatories } from "@/lib/certificate-data";
-import { parseAwardsCSV, parseSignatoriesCSV, generateAwardsCSV, generateSignatoriesCSV, generateAwardsTemplate, generateSignatoriesTemplate } from '@/lib/csv-utils';
+import {
+  Signatory,
+  initialAwards,
+  initialSignatories
+} from "@/lib/certificate-data";
+import {
+  parseAwardsCSV,
+  parseSignatoriesCSV,
+  generateAwardsCSV,
+  generateSignatoriesCSV,
+  generateAwardsTemplate,
+  generateSignatoriesTemplate
+} from "@/lib/csv-utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type AlertStatus = {
   show: boolean;
-  type: 'success' | 'error';
+  type: "success" | "error";
   message: string;
   title: string;
 };
 
 export default function AwardCertificate() {
   const [awards, setAwards] = useState<AwardCertificate[]>(initialAwards);
-  const [signatories, setSignatories] = useState<Signatory[]>(initialSignatories);
+  const [signatories, setSignatories] =
+    useState<Signatory[]>(initialSignatories);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [topRightImage, setTopRightImage] = useState<string | null>(null);
   const [topLeftImage, setTopLeftImage] = useState<string | null>(null);
@@ -85,9 +98,9 @@ export default function AwardCertificate() {
 
   const [importAlert, setImportAlert] = useState<AlertStatus>({
     show: false,
-    type: 'success',
-    message: '',
-    title: ''
+    type: "success",
+    message: "",
+    title: ""
   });
 
   const handleBackgroundUpload = (file: File) => {
@@ -124,16 +137,17 @@ export default function AwardCertificate() {
     const pdf = new jsPDF({
       orientation: certificateStyle === "wide" ? "landscape" : "portrait",
       unit: "in",
-      format: certificateStyle === "wide" ? [14, 8.5] : [8.5, 11]
+      format: certificateStyle === "wide" ? [13, 8.5] : [8.5, 11]
     });
 
-    const margin = 0.5; // Reduced margin to 0.5 inch
-    const pageWidth = certificateStyle === "wide" ? 11 : 8.5;
+    // Use consistent margins and calculate usable space
+    const margin = 1; // 1 inch margin
+    const pageWidth = certificateStyle === "wide" ? 13 : 8.5;
     const pageHeight = certificateStyle === "wide" ? 8.5 : 11;
     const usableWidth = pageWidth - 2 * margin;
 
     for (let i = 0; i < awards.length; i++) {
-      // Only add new page if we're in landscape mode or if we're starting a new pair in portrait
+      // Add new page for each certificate in landscape, or every 2 certificates in portrait
       if (i > 0 && (certificateStyle === "wide" || i % 2 === 0)) {
         pdf.addPage();
       }
@@ -146,23 +160,25 @@ export default function AwardCertificate() {
           useCORS: true
         });
 
-        // Calculate dimensions based on 3:2 aspect ratio
-        let imgWidth, imgHeight, yPosition;
+        // Calculate dimensions to maintain 3:2 aspect ratio
+        let imgWidth, imgHeight, xPosition, yPosition;
+
         if (certificateStyle === "wide") {
-          // 3:2 aspect ratio for wide
+          // For landscape: use full usable width and calculate height
           imgWidth = usableWidth;
-          imgHeight = usableWidth * (2 / 3);
-          yPosition = (pageHeight - imgHeight) / 2;
+          imgHeight = (imgWidth * 2) / 3; // maintain 3:2 ratio
+          xPosition = margin;
+          yPosition = (pageHeight - imgHeight) / 2; // center vertically
         } else {
-          // 3:2 aspect ratio for portrait
+          // For portrait: fit two certificates per page
           imgWidth = usableWidth;
-          imgHeight = usableWidth * (2 / 3);
-          const verticalGap = 0.25; // Reduced gap between certificates
-          yPosition = (i % 2) * (imgHeight + verticalGap) + margin;
+          imgHeight = (imgWidth * 2) / 3; // maintain 3:2 ratio
+          xPosition = margin;
+          yPosition = i % 2 === 0 ? margin : margin + imgHeight + 0.5; // 0.5 inch gap between certificates
         }
 
         const imgData = canvas.toDataURL("image/png");
-        pdf.addImage(imgData, "PNG", margin, yPosition, imgWidth, imgHeight);
+        pdf.addImage(imgData, "PNG", xPosition, yPosition, imgWidth, imgHeight);
       }
     }
 
@@ -207,7 +223,9 @@ export default function AwardCertificate() {
     setSignatories(signatories.filter((_, i) => i !== index));
   };
 
-  const handleAwardsCSVImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAwardsCSVImport = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -218,22 +236,26 @@ export default function AwardCertificate() {
           setAwards(awards);
           setImportAlert({
             show: true,
-            type: 'success',
-            title: 'Awards Imported',
+            type: "success",
+            title: "Awards Imported",
             message: `Successfully imported ${awards.length} awards`
           });
           setTimeout(() => {
-            setImportAlert(prev => ({ ...prev, show: false }));
+            setImportAlert((prev) => ({ ...prev, show: false }));
           }, 3000);
-        } catch (error) {
+        } catch (err) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          console.error("Failed to import awards:", err);
           setImportAlert({
             show: true,
-            type: 'error',
-            title: 'Import Failed',
-            message: 'Please check your CSV format and try again'
+            type: "error",
+            title: "Import Failed",
+            message: `Failed to import: ${
+              err instanceof Error ? err.message : "Invalid format"
+            }`
           });
           setTimeout(() => {
-            setImportAlert(prev => ({ ...prev, show: false }));
+            setImportAlert((prev) => ({ ...prev, show: false }));
           }, 3000);
         }
       };
@@ -241,7 +263,9 @@ export default function AwardCertificate() {
     }
   };
 
-  const handleSignatoriesCSVImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSignatoriesCSVImport = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -252,22 +276,26 @@ export default function AwardCertificate() {
           setSignatories(signatories);
           setImportAlert({
             show: true,
-            type: 'success',
-            title: 'Signatories Imported',
+            type: "success",
+            title: "Signatories Imported",
             message: `Successfully imported ${signatories.length} signatories`
           });
           setTimeout(() => {
-            setImportAlert(prev => ({ ...prev, show: false }));
+            setImportAlert((prev) => ({ ...prev, show: false }));
           }, 3000);
-        } catch (error) {
+        } catch (err) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          console.error("Failed to import signatories:", err);
           setImportAlert({
             show: true,
-            type: 'error',
-            title: 'Import Failed',
-            message: 'Please check your CSV format and try again'
+            type: "error",
+            title: "Import Failed",
+            message: `Failed to import: ${
+              err instanceof Error ? err.message : "Invalid format"
+            }`
           });
           setTimeout(() => {
-            setImportAlert(prev => ({ ...prev, show: false }));
+            setImportAlert((prev) => ({ ...prev, show: false }));
           }, 3000);
         }
       };
@@ -277,44 +305,44 @@ export default function AwardCertificate() {
 
   const exportAwardsCSV = () => {
     const csv = generateAwardsCSV(awards);
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'awards.csv';
+    a.download = "awards.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   const exportSignatoriesCSV = () => {
     const csv = generateSignatoriesCSV(signatories);
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'signatories.csv';
+    a.download = "signatories.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   const downloadAwardsTemplate = () => {
     const csv = generateAwardsTemplate();
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'awards-template.csv';
+    a.download = "awards-template.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   const downloadSignatoriesTemplate = () => {
     const csv = generateSignatoriesTemplate();
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'signatories-template.csv';
+    a.download = "signatories-template.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -394,33 +422,45 @@ export default function AwardCertificate() {
               >
                 <div className="flex flex-col items-center gap-2 py-3 px-2">
                   <Download className="w-4 h-4" />
-                  <span className="text-sm font-medium">Import/Export</span>
+                  <span className="text-sm font-medium">
+                    Import
+                    <br />
+                    /Export
+                  </span>
                 </div>
               </TabsTrigger>
             </TabsList>
 
             {importAlert.show && (
               <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2">
-                <Alert 
+                <Alert
                   className={`w-96 ${
-                    importAlert.type === 'success' 
-                      ? 'bg-green-50 border-green-200' 
-                      : 'bg-red-50 border-red-200'
+                    importAlert.type === "success"
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
                   }`}
                 >
-                  {importAlert.type === 'success' ? (
+                  {importAlert.type === "success" ? (
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
                   ) : (
                     <AlertCircle className="h-4 w-4 text-red-600" />
                   )}
-                  <AlertTitle className={`${
-                    importAlert.type === 'success' ? 'text-green-800' : 'text-red-800'
-                  }`}>
+                  <AlertTitle
+                    className={`${
+                      importAlert.type === "success"
+                        ? "text-green-800"
+                        : "text-red-800"
+                    }`}
+                  >
                     {importAlert.title}
                   </AlertTitle>
-                  <AlertDescription className={`${
-                    importAlert.type === 'success' ? 'text-green-700' : 'text-red-700'
-                  }`}>
+                  <AlertDescription
+                    className={`${
+                      importAlert.type === "success"
+                        ? "text-green-700"
+                        : "text-red-700"
+                    }`}
+                  >
                     {importAlert.message}
                   </AlertDescription>
                 </Alert>
@@ -496,7 +536,8 @@ export default function AwardCertificate() {
                             certificates
                           </li>
                           <li>
-                            • Presentation text appears above recipient&apos;s name
+                            • Presentation text appears above recipient&apos;s
+                            name
                           </li>
                           <li>• Keep text formal and professional</li>
                           <li>• Changes apply to all certificates</li>
@@ -1196,7 +1237,9 @@ export default function AwardCertificate() {
                     {/* Import Section */}
                     <div className="space-y-4">
                       <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                        <h3 className="text-sm font-medium text-gray-700 mb-4">Import Data</h3>
+                        <h3 className="text-sm font-medium text-gray-700 mb-4">
+                          Import Data
+                        </h3>
                         <div className="space-y-4">
                           <div>
                             <div className="flex justify-between items-center mb-2">
@@ -1222,7 +1265,10 @@ export default function AwardCertificate() {
                           </div>
                           <div>
                             <div className="flex justify-between items-center mb-2">
-                              <Label htmlFor="signatoriesImport" className="text-sm">
+                              <Label
+                                htmlFor="signatoriesImport"
+                                className="text-sm"
+                              >
                                 Import Signatories CSV
                               </Label>
                               <Button
@@ -1252,13 +1298,17 @@ export default function AwardCertificate() {
                         </h3>
                         <div className="space-y-3">
                           <div>
-                            <p className="text-sm font-medium text-blue-800">Awards CSV Format:</p>
+                            <p className="text-sm font-medium text-blue-800">
+                              Awards CSV Format:
+                            </p>
                             <code className="text-xs text-blue-700 block mt-1 bg-blue-50/50 p-2 rounded">
                               recipient,title,description
                             </code>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-blue-800">Signatories CSV Format:</p>
+                            <p className="text-sm font-medium text-blue-800">
+                              Signatories CSV Format:
+                            </p>
                             <code className="text-xs text-blue-700 block mt-1 bg-blue-50/50 p-2 rounded">
                               name,title
                             </code>
@@ -1275,7 +1325,9 @@ export default function AwardCertificate() {
                     {/* Export Section */}
                     <div className="space-y-4">
                       <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                        <h3 className="text-sm font-medium text-gray-700 mb-4">Export Data</h3>
+                        <h3 className="text-sm font-medium text-gray-700 mb-4">
+                          Export Data
+                        </h3>
                         <div className="space-y-4">
                           <Button
                             onClick={exportAwardsCSV}
@@ -1293,7 +1345,7 @@ export default function AwardCertificate() {
                           </Button>
                           <Button
                             onClick={exportToPDF}
-                            className="w-full bg-blue-600 hover:bg-blue-700"
+                            className="w-full bg-green-600 hover:bg-green-700"
                           >
                             <Download className="w-4 h-4 mr-2" />
                             Export Certificates PDF
@@ -1307,10 +1359,17 @@ export default function AwardCertificate() {
                           Import/Export Tips
                         </h3>
                         <ul className="text-sm text-blue-700 space-y-1">
-                          <li>• CSV files should include headers: recipient, title, description</li>
+                          <li>
+                            • CSV files should include headers: recipient,
+                            title, description
+                          </li>
                           <li>• For signatories: name, title</li>
-                          <li>• Export your data before making major changes</li>
-                          <li>• PDF export includes all current certificates</li>
+                          <li>
+                            • Export your data before making major changes
+                          </li>
+                          <li>
+                            • PDF export includes all current certificates
+                          </li>
                         </ul>
                       </div>
                     </div>
@@ -1342,344 +1401,377 @@ export default function AwardCertificate() {
                   <div
                     key={index}
                     ref={(el) => (certificatesRef.current[index] = el)}
-                    className={`relative bg-white border-8 rounded-lg shadow-2xl p-8 pb-16 aspect-[3/2]`}
+                    className={`relative bg-white border-8 rounded-lg shadow-2xl aspect-[3/2]`}
                     style={{ borderColor: ornamentalCornersColor }}
                   >
-                    {/* Background Image */}
-                    <div className="text-center py-4">
-                      {backgroundImage && (
-                        <div
-                          className="absolute inset-0 bg-cover bg-center"
-                          style={{
-                            backgroundImage: `url(${backgroundImage})`,
-                            opacity: backgroundOpacity
-                          }}
-                          role="presentation"
-                          aria-hidden="true"
-                        />
-                      )}
-                      {/* Corner Images */}
-                      {topLeftImage && (
-                        <div
-                          className="absolute top-4 left-4 w-24 h-24 bg-cover bg-center"
-                          style={{
-                            backgroundImage: `url(${topLeftImage})`,
-                            opacity: cornerOpacity
-                          }}
-                          role="presentation"
-                          aria-hidden="true"
-                        />
-                      )}
-                      {topRightImage && (
-                        <div
-                          className="absolute top-4 right-4 w-24 h-24 bg-cover bg-center"
-                          style={{
-                            backgroundImage: `url(${topRightImage})`,
-                            opacity: cornerOpacity
-                          }}
-                          role="presentation"
-                          aria-hidden="true"
-                        />
-                      )}
-                      {bottomLeftImage && (
-                        <div
-                          className="absolute bottom-4 left-4 w-24 h-24 bg-cover bg-center"
-                          style={{
-                            backgroundImage: `url(${bottomLeftImage})`,
-                            opacity: cornerOpacity
-                          }}
-                          role="presentation"
-                          aria-hidden="true"
-                        />
-                      )}
-                      {bottomRightImage && (
-                        <div
-                          className="absolute bottom-4 right-4 w-24 h-24 bg-cover bg-center"
-                          style={{
-                            backgroundImage: `url(${bottomRightImage})`,
-                            opacity: cornerOpacity
-                          }}
-                          role="presentation"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </div>
-
-                    {/* Decorative Elements */}
-                    <div
-                      className="absolute -top-1 -left-1 z-10"
-                      style={{ color: decorativeElementsColor }}
-                    >
-                      <Medal
-                        className="w-6 h-6"
-                        fill={decorativeElementsColor}
-                        fillOpacity={0.4}
-                      />
-                    </div>
-                    <div
-                      className="absolute -top-1 -right-1 z-10"
-                      style={{ color: decorativeElementsColor }}
-                    >
-                      <Medal
-                        className="w-6 h-6"
-                        fill={decorativeElementsColor}
-                        fillOpacity={0.4}
-                      />
-                    </div>
-                    <div
-                      className="absolute -bottom-1 -left-1 z-10"
-                      style={{ color: decorativeElementsColor }}
-                    >
-                      <Ribbon
-                        className="w-6 h-6"
-                        fill={decorativeElementsColor}
-                        fillOpacity={0.4}
-                      />
-                    </div>
-                    <div
-                      className="absolute -bottom-1 -right-1 z-10"
-                      style={{ color: decorativeElementsColor }}
-                    >
-                      <Ribbon
-                        className="w-6 h-6"
-                        fill={decorativeElementsColor}
-                        fillOpacity={0.4}
-                      />
-                    </div>
-
-                    {/* Ornamental Corners with fixed alignment */}
-                    <div className="absolute inset-0">
-                      {/* Gold borders */}
-                      <div
-                        className="absolute top-0 left-0 w-24 h-24 border-l-4 border-t-4 rounded-tl-lg"
-                        style={{ borderColor: ornamentalCornersColor }}
-                      />
-                      <div
-                        className="absolute top-0 right-0 w-24 h-24 border-r-4 border-t-4 rounded-tr-lg"
-                        style={{ borderColor: ornamentalCornersColor }}
-                      />
-                      <div
-                        className="absolute bottom-0 left-0 w-24 h-24 border-l-4 border-b-4 rounded-bl-lg"
-                        style={{ borderColor: ornamentalCornersColor }}
-                      />
-                      <div
-                        className="absolute bottom-0 right-0 w-24 h-24 border-r-4 border-b-4 rounded-br-lg"
-                        style={{ borderColor: ornamentalCornersColor }}
-                      />
-
-                      {/* Brown borders positioned below gold */}
-                      <div
-                        className={`absolute top-4 left-4 w-20 h-20 border-l-2 border-t-2 border-[${decorativeElementsColor}] rounded-tl-lg`}
-                        style={{ opacity: topLeftImage ? 0 : 1 }}
-                      />
-                      <div
-                        className={`absolute top-4 right-4 w-20 h-20 border-r-2 border-t-2 border-[${decorativeElementsColor}] rounded-tr-lg`}
-                        style={{ opacity: topRightImage ? 0 : 1 }}
-                      />
-                      <div
-                        className={`absolute bottom-4 left-4 w-20 h-20 border-l-2 border-b-2 border-[${decorativeElementsColor}] rounded-bl-lg`}
-                        style={{ opacity: bottomLeftImage ? 0 : 1 }}
-                      />
-                      <div
-                        className={`absolute bottom-4 right-4 w-20 h-20 border-r-2 border-b-2 border-[${decorativeElementsColor}] rounded-br-lg`}
-                        style={{ opacity: bottomRightImage ? 0 : 1 }}
-                      />
-                    </div>
-
-                    {/* Certificate Content */}
-                    <div
-                      className="relative z-10 h-full flex flex-col"
-                      style={{
-                        minHeight:
-                          certificateStyle === "wide" ? "500px" : "auto"
-                      }}
-                    >
-                      {/* Enhanced Decorative Header */}
-                      <div className="text-center mb-4">
-                        <div
-                          className={`flex items-center justify-center mb-2 ${
-                            certificateStyle === "wide" ? "mx-16" : "mx-8"
-                          }`}
-                        >
-                          {/*left Title decorative elements */}
-                          <Star
-                            className="w-6 h-6"
-                            style={{
-                              color: decorativeElementsColor,
-                              opacity: topLeftImage ? 0 : 1
-                            }}
-                          />
+                    {/* Add a container div with certificate-content class */}
+                    <div className="certificate-content relative z-10 h-full flex flex-col items-center justify-center">
+                      {/* Background Image */}
+                      <div className="text-center py-4">
+                        {backgroundImage && (
                           <div
-                            className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-transparent to-transparent"
+                            className="absolute inset-0 bg-cover bg-center"
                             style={{
-                              backgroundImage: `linear-gradient(to right, transparent, 
-                      ${decorativeElementsColor}, transparent)`,
-                              opacity: topLeftImage ? 0 : 1
+                              backgroundImage: `url(${backgroundImage})`,
+                              opacity: backgroundOpacity
                             }}
+                            role="presentation"
+                            aria-hidden="true"
+                            aria-label="Certificate background"
                           />
-                          {/* end left Title decorative elements */}
-                          <Award
-                            className="w-10 h-10"
-                            style={{ color: decorativeElementsColor }}
-                          />
-                          <h1
-                            className={`mx-2 font-bold font-serif tracking-wider ${
-                              certificateStyle === "wide"
-                                ? "text-5xl mt-6"
-                                : "text-4xl"
-                            }`}
-                            style={{ color: mainTitleColor }}
-                          >
-                            {mainTitle}
-                          </h1>
-                          <Award
-                            className="w-10 h-10"
-                            style={{ color: decorativeElementsColor }}
-                          />
-                          {/*right Title decorative elements */}
+                        )}
+                        {/* Corner Images */}
+                        {topLeftImage && (
                           <div
-                            className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-transparent to-transparent"
+                            className="absolute top-4 left-4 w-24 h-24 bg-cover bg-center"
                             style={{
-                              backgroundImage: `linear-gradient(to right, transparent, ${decorativeElementsColor}, transparent)`
+                              backgroundImage: `url(${topLeftImage})`,
+                              opacity: cornerOpacity
                             }}
+                            role="presentation"
+                            aria-hidden="true"
+                            aria-label="Top left decorative image"
                           />
-
-                          <Star
-                            className="w-6 h-6"
-                            style={{ color: decorativeElementsColor }}
+                        )}
+                        {topRightImage && (
+                          <div
+                            className="absolute top-4 right-4 w-24 h-24 bg-cover bg-center"
+                            style={{
+                              backgroundImage: `url(${topRightImage})`,
+                              opacity: cornerOpacity
+                            }}
+                            role="presentation"
+                            aria-hidden="true"
+                            aria-label="Top right decorative image"
                           />
-                        </div>
-                        {/* end right Title decorative elements */}
-                        <h2
-                          className={`font-semibold font-serif mt-2 ${
-                            certificateStyle === "wide"
-                              ? "text-3xl"
-                              : "text-2xl"
-                          }`}
-                          style={{ color: titleColor }}
-                        >
-                          {award.title}
-                        </h2>
+                        )}
+                        {bottomLeftImage && (
+                          <div
+                            className="absolute bottom-4 left-4 w-24 h-24 bg-cover bg-center"
+                            style={{
+                              backgroundImage: `url(${bottomLeftImage})`,
+                              opacity: cornerOpacity
+                            }}
+                            role="presentation"
+                            aria-hidden="true"
+                            aria-label="Bottom left decorative image"
+                          />
+                        )}
+                        {bottomRightImage && (
+                          <div
+                            className="absolute bottom-4 right-4 w-24 h-24 bg-cover bg-center"
+                            style={{
+                              backgroundImage: `url(${bottomRightImage})`,
+                              opacity: cornerOpacity
+                            }}
+                            role="presentation"
+                            aria-hidden="true"
+                            aria-label="Bottom right decorative image"
+                          />
+                        )}
                       </div>
 
-                      {/* Enhanced Recipient Section */}
-                      <div className="text-center mb-4">
-                        <p
-                          className={`italic ${
-                            certificateStyle === "wide"
-                              ? "text-xl mt-14"
-                              : "text-lg mt-8"
-                          }`}
-                          style={{ color: descriptionColor }}
-                        >
-                          {presentationText}
-                        </p>
-                        <div className="relative inline-block mt-2">
-                          <p
-                            className={`font-bold font-serif relative z-10 ${
-                              certificateStyle === "wide"
-                                ? "text-4xl mt-10"
-                                : "text-3xl"
-                            }`}
-                            style={{ color: recipientColor }}
-                          >
-                            {award.recipient}
-                          </p>
-                          <div className="absolute -bottom-1 left-0 right-0 h-3 bg-[#d4af37]/10 -rotate-1" />
-                        </div>
-                        {/* Enhanced Decorative Divider */}
-                        <div
-                          className={`flex items-center justify-center my-4 ${
-                            certificateStyle === "wide" ? "mx-32" : "mx-16"
-                          }`}
-                        >
-                          <Star
-                            className="w-4 h-4"
-                            style={{ color: decorativeElementsColor }}
-                          />
-                          <div
-                            className="h-px w-16 mx-2"
-                            style={{ backgroundColor: decorativeElementsColor }}
-                          />
-                          <Medal
-                            className="w-6 h-6"
-                            style={{ color: decorativeElementsColor }}
-                          />
-                          <div
-                            className="mx-2 text-xl"
-                            style={{ color: decorativeElementsColor }}
-                          >
-                            ✦
-                          </div>
-                          <Medal
-                            className="w-6 h-6"
-                            style={{ color: decorativeElementsColor }}
-                          />
-                          <div
-                            className="h-px w-16 mx-2"
-                            style={{ backgroundColor: decorativeElementsColor }}
-                          />
-                          <Star
-                            className="w-4 h-4"
-                            style={{ color: decorativeElementsColor }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Enhanced Description */}
-                      <div className="text-center mb-6">
-                        <p
-                          className={`italic leading-relaxed ${
-                            certificateStyle === "wide"
-                              ? "text-xl"
-                              : "text-base"
-                          }`}
-                          style={{ color: descriptionColor }}
-                        >
-                          {award.description}
-                        </p>
-                      </div>
-
-                      {/* Enhanced Signatures with more bottom spacing */}
+                      {/* Decorative Elements */}
+                      {/* Coverup for Gap */}
+                      <Dot className="absolute -top-10 -left-10 w-20 h-20" style={{ color: ornamentalCornersColor }}/>
                       <div
-                        className={`flex justify-between ${
-                          certificateStyle === "wide"
-                            ? "mx-24 mt-12 mb-4"
-                            : "mx-12 mt-8 mb-2"
-                        }`}
+                        className="absolute -top-1 -left-1 z-10"
+                        style={{ color: decorativeElementsColor }}
                       >
-                        {signatories.map((signatory, index) => (
-                          <div key={index} className="text-center">
-                            <p
-                              className={`font-semibold ${
+                        <Medal
+                          className="w-6 h-6"
+                          fill={decorativeElementsColor}
+                          fillOpacity={0.4}
+                        />
+                      </div>
+                      {/* Coverup for Gap */}
+                      <Dot className="absolute -top-10 -right-10 w-20 h-20" style={{ color: ornamentalCornersColor }}/>
+                      <div
+                        className="absolute -top-1 -right-1 z-10"
+                        style={{ color: decorativeElementsColor }}
+                      >
+                        <Medal
+                          className="w-6 h-6"
+                          fill={decorativeElementsColor}
+                          fillOpacity={0.4}
+                        />
+                      </div>
+                      {/* Coverup for Gap */}
+                      <Dot className="absolute -bottom-10 -left-10 w-20 h-20" style={{ color: ornamentalCornersColor }}/>
+                      <div
+                        className="absolute -bottom-1 -left-1 z-10"
+                        style={{ color: decorativeElementsColor }}
+                      >
+                        <Ribbon
+                          className="w-6 h-6"
+                          fill={decorativeElementsColor}
+                          fillOpacity={0.4}
+                        />
+                      </div>
+                      {/* Coverup for Gap */}
+                      <Dot className="absolute -bottom-10 -right-10 w-20 h-20" style={{ color: ornamentalCornersColor }}/>
+                      <div
+                        className="absolute -bottom-1 -right-1 z-10"
+                        style={{ color: decorativeElementsColor }}
+                      >
+                        <Ribbon
+                          className="w-6 h-6"
+                          fill={decorativeElementsColor}
+                          fillOpacity={0.4}
+                        />
+                      </div>
+
+                      {/* Ornamental Corners with fixed alignment */}
+                      <div className="absolute inset-0">
+                        {/* Gold borders */}
+                        <div
+                          className="absolute top-0 left-0 w-24 h-24 border-l-4 border-t-4 rounded-tl-lg"
+                          style={{ borderColor: ornamentalCornersColor }}
+                        />
+                        <div
+                          className="absolute top-0 right-0 w-24 h-24 border-r-4 border-t-4 rounded-tr-lg"
+                          style={{ borderColor: ornamentalCornersColor }}
+                        />
+                        <div
+                          className="absolute bottom-0 left-0 w-24 h-24 border-l-4 border-b-4 rounded-bl-lg"
+                          style={{ borderColor: ornamentalCornersColor }}
+                        />
+                        <div
+                          className="absolute bottom-0 right-0 w-24 h-24 border-r-4 border-b-4 rounded-br-lg"
+                          style={{ borderColor: ornamentalCornersColor }}
+                        />
+
+                        {/* Brown borders positioned below gold */}
+                        <div
+                          className={`absolute top-4 left-4 w-20 h-20 border-l-2 border-t-2 rounded-tl-lg`}
+                          style={{
+                            opacity: topLeftImage ? 0 : 1,
+                            borderColor: decorativeElementsColor
+                          }}
+                        />
+                        <div
+                          className={`absolute top-4 right-4 w-20 h-20 border-r-2 border-t-2 rounded-tr-lg`}
+                          style={{
+                            opacity: topRightImage ? 0 : 1,
+                            borderColor: decorativeElementsColor
+                          }}
+                        />
+                        <div
+                          className={`absolute bottom-4 left-4 w-20 h-20 border-l-2 border-b-2 rounded-bl-lg`}
+                          style={{
+                            opacity: bottomLeftImage ? 0 : 1,
+                            borderColor: decorativeElementsColor
+                          }}
+                        />
+                        <div
+                          className={`absolute bottom-4 right-4 w-20 h-20 border-r-2 border-b-2 rounded-br-lg`}
+                          style={{
+                            opacity: bottomRightImage ? 0 : 1,
+                            borderColor: decorativeElementsColor
+                          }}
+                        />
+                      </div>
+
+                      {/* Certificate Content */}
+                      <div
+                        className="relative z-10 h-full flex flex-col"
+                        style={{
+                          minHeight:
+                            certificateStyle === "wide" ? "500px" : "auto"
+                        }}
+                      >
+                        {/* Enhanced Decorative Header */}
+                        <div className="text-center mb-4">
+                          <div
+                            className={`flex items-center justify-center mb-2 ${
+                              certificateStyle === "wide" ? "mx-16" : "mx-8"
+                            }`}
+                          >
+                            {/*left Title decorative elements */}
+                            <Star
+                              className="w-6 h-6"
+                              style={{
+                                color: decorativeElementsColor,
+                                opacity: topLeftImage ? 0 : 1
+                              }}
+                            />
+                            <div
+                              className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-transparent to-transparent"
+                              style={{
+                                backgroundImage: `linear-gradient(to right, transparent, 
+                      ${decorativeElementsColor}, transparent)`,
+                                opacity: topLeftImage ? 0 : 1
+                              }}
+                            />
+                            {/* end left Title decorative elements */}
+                            <Award
+                              className="w-10 h-10"
+                              style={{ color: decorativeElementsColor }}
+                            />
+                            <h1
+                              className={`font-bold font-serif tracking-wider ${
                                 certificateStyle === "wide"
-                                  ? "text-lg"
-                                  : "text-base"
+                                  ? "text-5xl"
+                                  : "text-4xl"
                               }`}
-                              style={{ color: signatoryColor }}
+                              style={{ color: mainTitleColor }}
                             >
-                              {signatory.name}
+                              {mainTitle}
+                            </h1>
+                            <Award
+                              className="w-10 h-10"
+                              style={{ color: decorativeElementsColor }}
+                            />
+                            {/*right Title decorative elements */}
+                            <div
+                              className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-transparent to-transparent"
+                              style={{
+                                backgroundImage: `linear-gradient(to right, transparent, ${decorativeElementsColor}, transparent)`
+                              }}
+                            />
+
+                            <Star
+                              className="w-6 h-6"
+                              style={{ color: decorativeElementsColor }}
+                            />
+                          </div>
+                          {/* end right Title decorative elements */}
+                          <h2
+                            className={`font-semibold font-serif mt-2 ${
+                              certificateStyle === "wide"
+                                ? "text-3xl"
+                                : "text-2xl"
+                            }`}
+                            style={{ color: titleColor }}
+                          >
+                            {award.title}
+                          </h2>
+                        </div>
+
+                        {/* Enhanced Recipient Section */}
+                        <div className="text-center mb-4">
+                          <p
+                            className={`italic ${
+                              certificateStyle === "wide"
+                                ? "text-xl mt-14"
+                                : "text-lg mt-8"
+                            }`}
+                            style={{ color: descriptionColor }}
+                          >
+                            {presentationText}
+                          </p>
+                          <div className="relative inline-block mt-2">
+                            <p
+                              className={`font-bold font-serif relative z-10 ${
+                                certificateStyle === "wide"
+                                  ? "text-4xl mt-10"
+                                  : "text-3xl"
+                              }`}
+                              style={{ color: recipientColor }}
+                            >
+                              {award.recipient}
                             </p>
                             <div
-                              className={`w-32 border-t-2 my-1 ${
-                                certificateStyle === "wide"
-                                  ? "mx-16"
-                                  : "mx-8"
-                              }`}
-                              style={{ borderColor: decorativeElementsColor }}
+                              className="absolute -bottom-1 left-0 right-0 h-3 -rotate-1"
+                              style={{ backgroundColor: `${ornamentalCornersColor}33` }}
                             />
-                            <p
-                              className={
-                                certificateStyle === "wide"
-                                  ? "text-base"
-                                  : "text-sm"
-                              }
-                              style={{ color: signatoryColor }}
-                            >
-                              {signatory.title}
-                            </p>
                           </div>
-                        ))}
+                          {/* Enhanced Decorative Divider */}
+                          <div
+                            className={`flex items-center justify-center my-4 ${
+                              certificateStyle === "wide" ? "mx-32" : "mx-16"
+                            }`}
+                          >
+                            <Star
+                              className="w-4 h-4"
+                              style={{ color: decorativeElementsColor }}
+                            />
+                            <div
+                              className="h-px w-16 mx-2"
+                              style={{
+                                backgroundColor: decorativeElementsColor
+                              }}
+                            />
+                            <Medal
+                              className="w-6 h-6"
+                              style={{ color: decorativeElementsColor }}
+                            />
+                            <div
+                              className="mx-2 text-xl"
+                              style={{ color: decorativeElementsColor }}
+                            >
+                              ✦
+                            </div>
+                            <Medal
+                              className="w-6 h-6"
+                              style={{ color: decorativeElementsColor }}
+                            />
+                            <div
+                              className="h-px w-16 mx-2"
+                              style={{
+                                backgroundColor: decorativeElementsColor
+                              }}
+                            />
+                            <Star
+                              className="w-4 h-4"
+                              style={{ color: decorativeElementsColor }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Enhanced Description */}
+                        <div className="text-center mb-6">
+                          <p
+                            className={`italic leading-relaxed ${
+                              certificateStyle === "wide"
+                                ? "text-xl"
+                                : "text-base"
+                            }`}
+                            style={{ color: descriptionColor }}
+                          >
+                            {award.description}
+                          </p>
+                        </div>
+
+                        {/* Enhanced Signatures with more bottom spacing */}
+                        <div
+                          className={`flex justify-between ${
+                            certificateStyle === "wide"
+                              ? "mx-24 mt-12 mb-4"
+                              : "mx-12 mt-8 mb-2"
+                          }`}
+                        >
+                          {signatories.map((signatory, index) => (
+                            <div key={index} className="text-center">
+                              <p
+                                className={`font-semibold ${
+                                  certificateStyle === "wide"
+                                    ? "text-lg"
+                                    : "text-base"
+                                }`}
+                                style={{ color: signatoryColor }}
+                              >
+                                {signatory.name}
+                              </p>
+                              <div
+                                className={`w-32 border-t-2 my-1 ${
+                                  certificateStyle === "wide" ? "mx-16" : "mx-8"
+                                }`}
+                                style={{ borderColor: decorativeElementsColor }}
+                              />
+                              <p
+                                className={
+                                  certificateStyle === "wide"
+                                    ? "text-base"
+                                    : "text-sm"
+                                }
+                                style={{ color: signatoryColor }}
+                              >
+                                {signatory.title}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
