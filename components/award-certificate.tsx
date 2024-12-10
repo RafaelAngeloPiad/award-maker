@@ -22,7 +22,6 @@ import {
   Settings2,
   CheckCircle2,
   AlertCircle,
-  RotateCcw,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
