@@ -54,47 +54,47 @@ const defaultBackgrounds = [
   {
     id: "1",
     name: "1",
-    url: "/backgrounds/1.png",
+    url: "/backgrounds/01.png",
   },
   {
     id: "2",
     name: "2",
-    url: "/backgrounds/2.png",
+    url: "/backgrounds/02.png",
   },
   {
     id: "3",
     name: "3",
-    url: "/backgrounds/3.png",
+    url: "/backgrounds/03.png",
   },
   {
     id: "4",
     name: "4",
-    url: "/backgrounds/4.png",
+    url: "/backgrounds/04.png",
   },
   {
     id: "5",
     name: "5",
-    url: "/backgrounds/5.png",
+    url: "/backgrounds/05.png",
   },
   {
     id: "6",
     name: "6",
-    url: "/backgrounds/6.png",
+    url: "/backgrounds/06.png",
   },
   {
     id: "7",
     name: "7",
-    url: "/backgrounds/7.png",
+    url: "/backgrounds/07.png",
   },
   {
     id: "8",
     name: "8",
-    url: "/backgrounds/8.png",
+    url: "/backgrounds/08.png",
   },
   {
     id: "9",
     name: "9",
-    url: "/backgrounds/9.png",
+    url: "/backgrounds/09.png",
   },
   {
     id: "10",
@@ -116,8 +116,141 @@ const defaultBackgrounds = [
     name: "13",
     url: "/backgrounds/13.png",
   },
-
-  // Add more default backgrounds as needed
+  {
+    id: "14",
+    name: "14",
+    url: "/backgrounds/14.png",
+  },
+  {
+    id: "15",
+    name: "15",
+    url: "/backgrounds/15.png",
+  },
+  {
+    id: "16",
+    name: "16",
+    url: "/backgrounds/16.png",
+  },
+  {
+    id: "17",
+    name: "17",
+    url: "/backgrounds/17.png",
+  },
+  {
+    id: "18",
+    name: "18",
+    url: "/backgrounds/18.png",
+  },
+  {
+    id: "19",
+    name: "19",
+    url: "/backgrounds/19.png",
+  },
+  {
+    id: "20",
+    name: "20",
+    url: "/backgrounds/20.png",
+  },
+  {
+    id: "21",
+    name: "21",
+    url: "/backgrounds/21.png",
+  },
+  {
+    id: "22",
+    name: "22",
+    url: "/backgrounds/22.png",
+  },
+  {
+    id: "23",
+    name: "23",
+    url: "/backgrounds/23.png",
+  },
+  {
+    id: "24",
+    name: "24",
+    url: "/backgrounds/24.png",
+  },
+  {
+    id: "25",
+    name: "25",
+    url: "/backgrounds/25.png",
+  },
+  {
+    id: "26",
+    name: "26",
+    url: "/backgrounds/26.png",
+  },
+  {
+    id: "27",
+    name: "27",
+    url: "/backgrounds/27.png",
+  },
+  {
+    id: "28",
+    name: "28",
+    url: "/backgrounds/28.png",
+  },
+  {
+    id: "29",
+    name: "29",
+    url: "/backgrounds/29.png",
+  },
+  {
+    id: "30",
+    name: "30",
+    url: "/backgrounds/30.png",
+  },
+  {
+    id: "31",
+    name: "31",
+    url: "/backgrounds/31.png",
+  },
+  {
+    id: "32",
+    name: "32",
+    url: "/backgrounds/32.png",
+  },
+  {
+    id: "33",
+    name: "33",
+    url: "/backgrounds/33.png",
+  },
+  {
+    id: "34",
+    name: "34",
+    url: "/backgrounds/34.png",
+  },
+  {
+    id: "35",
+    name: "35",
+    url: "/backgrounds/35.png",
+  },
+  {
+    id: "36",
+    name: "36",
+    url: "/backgrounds/36.png",
+  },
+  {
+    id: "37",
+    name: "37",
+    url: "/backgrounds/37.png",
+  },
+  {
+    id: "38",
+    name: "38",
+    url: "/backgrounds/38.png",
+  },
+  {
+    id: "39",
+    name: "39",
+    url: "/backgrounds/39.png",
+  },
+  {
+    id: "40",
+    name: "40",
+    url: "/backgrounds/40.png",
+  },
 ];
 
 export default function AwardCertificate() {
@@ -329,7 +462,9 @@ export default function AwardCertificate() {
       reader.onload = (e) => {
         try {
           const content = e.target?.result as string;
-          const awards = parseAwardsCSV(content);
+          const awards = parseAwardsCSV(content).filter(
+            (award) => award.recipient && award.title && award.description
+          ); // Filter out empty entries
           setAwards(awards);
           setImportAlert({
             show: true,
@@ -341,7 +476,6 @@ export default function AwardCertificate() {
             setImportAlert((prev) => ({ ...prev, show: false }));
           }, 3000);
         } catch (err) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           console.error("Failed to import awards:", err);
           setImportAlert({
             show: true,
@@ -369,7 +503,9 @@ export default function AwardCertificate() {
       reader.onload = (e) => {
         try {
           const content = e.target?.result as string;
-          const signatories = parseSignatoriesCSV(content);
+          const signatories = parseSignatoriesCSV(content).filter(
+            (signatory) => signatory.name && signatory.title
+          ); // Filter out empty entries
           setSignatories(signatories);
           setImportAlert({
             show: true,
@@ -381,7 +517,6 @@ export default function AwardCertificate() {
             setImportAlert((prev) => ({ ...prev, show: false }));
           }, 3000);
         } catch (err) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           console.error("Failed to import signatories:", err);
           setImportAlert({
             show: true,
