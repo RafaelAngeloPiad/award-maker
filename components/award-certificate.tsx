@@ -267,6 +267,11 @@ export default function AwardCertificate() {
   const [topRightOpacity, setTopRightOpacity] = useState(0.2);
   const [bottomLeftOpacity, setBottomLeftOpacity] = useState(0.2);
   const [bottomRightOpacity, setBottomRightOpacity] = useState(0.2);
+  const [topLeftRadius, setTopLeftRadius] = useState(0);
+  const [topRightRadius, setTopRightRadius] = useState(0);
+  const [bottomLeftRadius, setBottomLeftRadius] = useState(0);
+  const [bottomRightRadius, setBottomRightRadius] = useState(0);
+
   const [titleColor, setTitleColor] = useState("#5d4037");
   const [recipientColor, setRecipientColor] = useState("#2c3e50");
   const [descriptionColor, setDescriptionColor] = useState("#5d4037");
@@ -859,7 +864,10 @@ export default function AwardCertificate() {
                           </div>
                         </div>
                       </div>
+                    </div>
 
+                    {/* Tips Card */}
+                    <div className="space-y-4">
                       <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
                         <h3 className="text-sm font-medium text-gray-700 mb-4">
                           Font Settings
@@ -917,10 +925,6 @@ export default function AwardCertificate() {
                           ))}
                         </div>
                       </div>
-                    </div>
-
-                    {/* Tips Card */}
-                    <div className="space-y-4">
                       <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                         <h3 className="text-sm font-medium text-blue-800 mb-2">
                           Tips
@@ -957,149 +961,264 @@ export default function AwardCertificate() {
                     <ImageIcon className="w-5 h-5 text-gray-400" />
                   </div>
 
+                  {/* Background Section */}
+
+                  <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+                    <label className="text-base">For Background : </label>
+
+                    {/* Default Backgrounds */}
+                    <div className="space-y-4">
+                      <Label className="text-sm">
+                        Choose from Default Backgrounds
+                      </Label>
+                      <div className="h-[300px] overflow-y-auto rounded-lg border border-gray-200 p-4">
+                        <div className="grid grid-cols-3 gap-4">
+                          {defaultBackgrounds.map((bg) => (
+                            <button
+                              key={bg.id}
+                              onClick={() =>
+                                handleDefaultBackgroundSelect(bg.url)
+                              }
+                              className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
+                                backgroundImage === bg.url
+                                  ? "border-blue-500 ring-2 ring-blue-200"
+                                  : "border-gray-200 hover:border-gray-300"
+                              }`}
+                            >
+                              <img
+                                src={bg.url}
+                                alt={bg.name}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <span className="text-white text-sm font-medium">
+                                  {bg.name}
+                                </span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="relative my-8">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-gray-200" />
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-gray-50 text-gray-500">
+                          Or
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      {/* Custom Upload */}
+                      <div className="grid grid-cols-2 gap-0">
+                        <div className="space-y-2">
+                          <Label className="text-sm">Custom Background :</Label>
+                        </div>
+                        <div>
+                          <FileUpload
+                            onFileSelect={handleBackgroundUpload}
+                            label="Background"
+                          />
+                          {backgroundImage && (
+                            <Button
+                              onClick={() => setBackgroundImage(null)}
+                              variant="outline"
+                              className="mt-4 w-full text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove Background
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Upload Section */}
                     <div className="space-y-4">
                       <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                        <h3 className="text-sm font-medium text-gray-700 mb-4">
-                          Upload Images
-                        </h3>
                         <div className="grid grid-cols-1 gap-4">
-                          <label className="text-base">For Background : </label>
-                          <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                            <h3 className="text-sm font-medium text-gray-700 mb-4">
-                              Background Options
-                            </h3>
-
-                            {/* Default Backgrounds */}
-                            <div className="space-y-4">
-                              <Label className="text-sm">
-                                Choose from Default Backgrounds
-                              </Label>
-                              <div className="grid grid-cols-2 gap-4">
-                                {defaultBackgrounds.map((bg) => (
-                                  <button
-                                    key={bg.id}
-                                    onClick={() =>
-                                      handleDefaultBackgroundSelect(bg.url)
-                                    }
-                                    className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
-                                      backgroundImage === bg.url
-                                        ? "border-blue-500 ring-2 ring-blue-200"
-                                        : "border-gray-200 hover:border-gray-300"
-                                    }`}
-                                  >
-                                    <img
-                                      src={bg.url}
-                                      alt={bg.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                      <span className="text-white text-sm font-medium">
-                                        {bg.name}
-                                      </span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
+                          <div>
+                            {/* For Corner Images */}
+                            <label className="text-base">
+                              For Corner Images :{" "}
+                            </label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <label className="text-sm">Top Left : </label>
+                              <FileUpload
+                                onFileSelect={handleTopLeftUpload}
+                                label="Top Left"
+                              />
+                              {topLeftImage && (
+                                <Button
+                                  onClick={() => setTopLeftImage(null)}
+                                  variant="outline"
+                                  className="mt-4 w-full text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Remove Top Left
+                                </Button>
+                              )}
+                              <label className="text-sm">Top Right : </label>
+                              <FileUpload
+                                onFileSelect={handleTopRightUpload}
+                                label="Top Right"
+                              />
+                              {topRightImage && (
+                                <Button
+                                  onClick={() => setTopRightImage(null)}
+                                  variant="outline"
+                                  className="mt-4 w-full text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Remove Top Right
+                                </Button>
+                              )}
+                              <label className="text-sm">Bottom Left : </label>
+                              <FileUpload
+                                onFileSelect={handleBottomLeftUpload}
+                                label="Bottom Left"
+                              />
+                              {bottomLeftImage && (
+                                <Button
+                                  onClick={() => setBottomLeftImage(null)}
+                                  variant="outline"
+                                  className="mt-4 w-full text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Remove Bottom Left
+                                </Button>
+                              )}
+                              <label className="text-sm">Bottom Right : </label>
+                              <FileUpload
+                                onFileSelect={handleBottomRightUpload}
+                                label="Bottom Right"
+                              />
+                              {bottomRightImage && (
+                                <Button
+                                  onClick={() => setBottomRightImage(null)}
+                                  variant="outline"
+                                  className="mt-4 w-full text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Remove Bottom Right
+                                </Button>
+                              )}
                             </div>
+                          </div>
+                          <div>
+                            {/* For Border of Images */}
 
-                            {/* Divider */}
-                            <div className="relative my-8">
-                              <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-gray-200" />
-                              </div>
-                              <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-gray-50 text-gray-500">
-                                  Or
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <Label
+                                  htmlFor="topLeftRadius"
+                                  className="text-sm"
+                                >
+                                  Top Left Corner Radius
+                                </Label>
+                                <span className="text-sm text-gray-500">
+                                  {topLeftRadius}px
                                 </span>
                               </div>
-                            </div>
-
-                            {/* Custom Upload */}
-                            <div className="space-y-4">
-                              <Label className="text-sm">
-                                Upload Custom Background
-                              </Label>
-                              <FileUpload
-                                onFileSelect={handleBackgroundUpload}
-                                label="Upload Background"
+                              <Input
+                                id="topLeftRadius"
+                                type="range"
+                                min="0"
+                                max="50"
+                                step="1"
+                                value={topLeftRadius}
+                                onChange={(e) =>
+                                  setTopLeftRadius(parseInt(e.target.value))
+                                }
+                                className="flex-1"
                               />
                             </div>
-                            {backgroundImage && (
-                              <Button
-                                onClick={() => setBackgroundImage(null)}
-                                variant="outline"
-                                className="mt-4 w-full text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Remove Background
-                              </Button>
-                            )}
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <Label
+                                  htmlFor="topRightRadius"
+                                  className="text-sm"
+                                >
+                                  Top Right Corner Radius
+                                </Label>
+                                <span className="text-sm text-gray-500">
+                                  {topRightRadius}px
+                                </span>
+                              </div>
+                              <Input
+                                id="topRightRadius"
+                                type="range"
+                                min="0"
+                                max="50"
+                                step="1"
+                                value={topRightRadius}
+                                onChange={(e) =>
+                                  setTopRightRadius(parseInt(e.target.value))
+                                }
+                                className="flex-1"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <Label
+                                  htmlFor="bottomLeftRadius"
+                                  className="text-sm"
+                                >
+                                  Bottom Left Corner Radius
+                                </Label>
+                                <span className="text-sm text-gray-500">
+                                  {bottomLeftRadius}px
+                                </span>
+                              </div>
+                              <Input
+                                id="bottomLeftRadius"
+                                type="range"
+                                min="0"
+                                max="50"
+                                step="1"
+                                value={bottomLeftRadius}
+                                onChange={(e) =>
+                                  setBottomLeftRadius(parseInt(e.target.value))
+                                }
+                                className="flex-1"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <Label
+                                  htmlFor="bottomRightRadius"
+                                  className="text-sm"
+                                >
+                                  Bottom Right Corner Radius
+                                </Label>
+                                <span className="text-sm text-gray-500">
+                                  {bottomRightRadius}px
+                                </span>
+                              </div>
+                              <Input
+                                id="bottomRightRadius"
+                                type="range"
+                                min="0"
+                                max="50"
+                                step="1"
+                                value={bottomRightRadius}
+                                onChange={(e) =>
+                                  setBottomRightRadius(parseInt(e.target.value))
+                                }
+                                className="flex-1"
+                              />
+                            </div>
                           </div>
-                          <label className="text-base">
-                            For Corner Images :{" "}
-                          </label>
-                          <label className="text-sm">Top Left : </label>
-                          <FileUpload
-                            onFileSelect={handleTopLeftUpload}
-                            label="Top Left"
-                          />
-                          {topLeftImage && (
-                            <Button
-                              onClick={() => setTopLeftImage(null)}
-                              variant="outline"
-                              className="mt-4 w-full text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Remove Top Left
-                            </Button>
-                          )}
-                          <label className="text-sm">Top Right : </label>
-                          <FileUpload
-                            onFileSelect={handleTopRightUpload}
-                            label="Top Right"
-                          />
-                          {topRightImage && (
-                            <Button
-                              onClick={() => setTopRightImage(null)}
-                              variant="outline"
-                              className="mt-4 w-full text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Remove Top Right
-                            </Button>
-                          )}
-                          <label className="text-sm">Bottom Left : </label>
-                          <FileUpload
-                            onFileSelect={handleBottomLeftUpload}
-                            label="Bottom Left"
-                          />
-                          {bottomLeftImage && (
-                            <Button
-                              onClick={() => setBottomLeftImage(null)}
-                              variant="outline"
-                              className="mt-4 w-full text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Remove Bottom Left
-                            </Button>
-                          )}
-                          <label className="text-sm">Bottom Right : </label>
-                          <FileUpload
-                            onFileSelect={handleBottomRightUpload}
-                            label="Bottom Right"
-                          />
-                          {bottomRightImage && (
-                            <Button
-                              onClick={() => setBottomRightImage(null)}
-                              variant="outline"
-                              className="mt-4 w-full text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Remove Bottom Right
-                            </Button>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -1110,7 +1229,7 @@ export default function AwardCertificate() {
                         <h3 className="text-sm font-medium text-gray-700 mb-4">
                           Opacity Settings
                         </h3>
-                        <div className="space-y-6">
+                        <div className="space-y-2">
                           <div className="space-y-2">
                             <div className="flex justify-between">
                               <Label
@@ -1973,7 +2092,7 @@ export default function AwardCertificate() {
             </div>
 
             {/* Full-Screen Mobile Warning Overlay */}
-            <div className="fixed inset-0 bg-black/100 z-50 flex items-center justify-center p-4 lg:hidden">
+            {/* <div className="fixed inset-0 bg-black/100 z-50 flex items-center justify-center p-4 sm:hidden">
               <div className="bg-white rounded-lg p-6 max-w-sm text-center space-y-4">
                 <RotateCcw className="w-12 h-12 mx-auto text-blue-600 animate-spin-slow" />
                 <h3 className="text-xl font-bold text-gray-900">
@@ -1991,7 +2110,7 @@ export default function AwardCertificate() {
                   The certificate editor requires a wider screen for optimal use
                 </p>
               </div>
-            </div>
+            </div> */}
 
             {/* Scrollable container for certificates */}
             <div className="overflow-y-auto 2xl:max-h-[calc(100vh-120px)] pr-4 -mr-4">
@@ -2030,10 +2149,11 @@ export default function AwardCertificate() {
                         {/* Corner Images */}
                         {topLeftImage && (
                           <div
-                            className="absolute top-4 left-4 w-24 h-24 bg-cover bg-center"
+                            className="absolute top-4 left-4 w-24 h-24 bg-cover bg-center overflow-hidden"
                             style={{
                               backgroundImage: `url(${topLeftImage})`,
                               opacity: topLeftOpacity,
+                              borderRadius: `${topLeftRadius}px`,
                             }}
                             role="presentation"
                             aria-hidden="true"
@@ -2042,10 +2162,11 @@ export default function AwardCertificate() {
                         )}
                         {topRightImage && (
                           <div
-                            className="absolute top-4 right-4 w-24 h-24 bg-cover bg-center"
+                            className="absolute top-4 right-4 w-24 h-24 bg-cover bg-center overflow-hidden"
                             style={{
                               backgroundImage: `url(${topRightImage})`,
                               opacity: topRightOpacity,
+                              borderRadius: `${topRightRadius}px`,
                             }}
                             role="presentation"
                             aria-hidden="true"
@@ -2054,10 +2175,11 @@ export default function AwardCertificate() {
                         )}
                         {bottomLeftImage && (
                           <div
-                            className="absolute bottom-4 left-4 w-24 h-24 bg-cover bg-center"
+                            className="absolute bottom-4 left-4 w-24 h-24 bg-cover bg-center overflow-hidden"
                             style={{
                               backgroundImage: `url(${bottomLeftImage})`,
                               opacity: bottomLeftOpacity,
+                              borderRadius: `${bottomLeftRadius}px`,
                             }}
                             role="presentation"
                             aria-hidden="true"
@@ -2066,10 +2188,11 @@ export default function AwardCertificate() {
                         )}
                         {bottomRightImage && (
                           <div
-                            className="absolute bottom-4 right-4 w-24 h-24 bg-cover bg-center"
+                            className="absolute bottom-4 right-4 w-24 h-24 bg-cover bg-center overflow-hidden"
                             style={{
                               backgroundImage: `url(${bottomRightImage})`,
                               opacity: bottomRightOpacity,
+                              borderRadius: `${bottomRightRadius}px`,
                             }}
                             role="presentation"
                             aria-hidden="true"

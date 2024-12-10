@@ -85,6 +85,6 @@ body {
 
 @media (max-width: 1024px) {
   body {
-    overflow: hidden !important;
+    width: 1024px;
   }
 }
