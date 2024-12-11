@@ -261,7 +261,7 @@ export default function AwardCertificate() {
   const [topLeftImage, setTopLeftImage] = useState<string | null>(null);
   const [bottomRightImage, setBottomRightImage] = useState<string | null>(null);
   const [bottomLeftImage, setBottomLeftImage] = useState<string | null>(null);
-  const [backgroundOpacity, setBackgroundOpacity] = useState(0.1);
+  const [backgroundOpacity, setBackgroundOpacity] = useState(0.5);
   const [topLeftOpacity, setTopLeftOpacity] = useState(0.2);
   const [topRightOpacity, setTopRightOpacity] = useState(0.2);
   const [bottomLeftOpacity, setBottomLeftOpacity] = useState(0.2);
@@ -318,6 +318,7 @@ export default function AwardCertificate() {
   const [edgeBorderOrnaments, setEdgeBorderOrnaments] = useState(true);
   const [edgeSpaceBorder, setEdgeSpaceBorder] = useState(true);
   const [border, setBorder] = useState(true);
+  const [titleIcon, setTitleIcon] = useState(true);
 
   const [mainTitleFont, setMainTitleFont] = useState("var(--font-geist-sans)");
   const [titleFont, setTitleFont] = useState("var(--font-geist-sans)");
@@ -857,6 +858,27 @@ export default function AwardCertificate() {
                                 <p className="text-sm font-medium">Border</p>
                                 <p className="text-xs text-gray-500">
                                   Toggle the Border
+                                </p>
+                              </div>
+                            </Label>
+                          </div>
+                          <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                            <input
+                              type="checkbox"
+                              id="titleIcon"
+                              checked={titleIcon}
+                              onChange={() => {
+                                setTitleIcon(!titleIcon);
+                              }}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label htmlFor="titleIcon" className="ml-3">
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium">
+                                  Title Icon
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Toggle the Title Icon
                                 </p>
                               </div>
                             </Label>
@@ -2421,12 +2443,14 @@ export default function AwardCertificate() {
                               }}
                             />
                             {/* end left Title decorative elements */}
-                            <Award
-                              className="w-10 h-10"
-                              style={{
-                                color: decorativeElementsColor,
-                              }}
-                            />
+                            {titleIcon && (
+                              <Award
+                                className="w-10 h-10"
+                                style={{
+                                  color: decorativeElementsColor,
+                                }}
+                              />
+                            )}
                             <h1
                               className={`font-bold tracking-wider ${
                                 certificateStyle === "wide"
@@ -2440,12 +2464,14 @@ export default function AwardCertificate() {
                             >
                               {mainTitle}
                             </h1>
-                            <Award
-                              className="w-10 h-10"
-                              style={{
-                                color: decorativeElementsColor,
-                              }}
-                            />
+                            {titleIcon && (
+                              <Award
+                                className="w-10 h-10"
+                                style={{
+                                  color: decorativeElementsColor,
+                                }}
+                              />
+                            )}
                             {/*right Title decorative elements */}
                             <div
                               className="h-0.5 flex-1 mx-2 bg-gradient-to-r from-transparent to-transparent"
