@@ -334,6 +334,8 @@ export default function AwardCertificate() {
     // Add more fonts as you add them to layout.tsx
   ];
 
+  const [letterSpacing, setLetterSpacing] = useState(true);
+
   const handleBackgroundUpload = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => setBackgroundImage(e.target?.result as string);
@@ -893,6 +895,27 @@ export default function AwardCertificate() {
                         <h3 className="text-sm font-medium text-gray-700 mb-4">
                           Font Settings
                         </h3>
+                        <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                            <input
+                              type="checkbox"
+                              id="letterSpacing"
+                              checked={letterSpacing}
+                              onChange={() => {
+                                setLetterSpacing(!letterSpacing);
+                              }}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label htmlFor="letterSpacing" className="ml-3">
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium">
+                                  Letter Spacing
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Toggle wider letter spacing in titles
+                                </p>
+                              </div>
+                            </Label>
+                          </div>
                         <div className="space-y-4">
                           {[
                             {
@@ -2452,7 +2475,7 @@ export default function AwardCertificate() {
                               />
                             )}
                             <h1
-                              className={`font-bold tracking-wider ${
+                              className={`font-bold ${letterSpacing ? 'tracking-wider' : ''} ${
                                 certificateStyle === "wide"
                                   ? "text-5xl"
                                   : "text-4xl"
