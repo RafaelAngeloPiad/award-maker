@@ -41,6 +41,7 @@ import {
   generateSignatoriesTemplate,
 } from "@/lib/csv-utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Image from "next/image";
 
 type AlertStatus = {
   show: boolean;
@@ -262,10 +263,10 @@ export default function AwardCertificate() {
   const [bottomRightImage, setBottomRightImage] = useState<string | null>(null);
   const [bottomLeftImage, setBottomLeftImage] = useState<string | null>(null);
   const [backgroundOpacity, setBackgroundOpacity] = useState(0.5);
-  const [topLeftOpacity, setTopLeftOpacity] = useState(0.2);
-  const [topRightOpacity, setTopRightOpacity] = useState(0.2);
-  const [bottomLeftOpacity, setBottomLeftOpacity] = useState(0.2);
-  const [bottomRightOpacity, setBottomRightOpacity] = useState(0.2);
+  const [topLeftOpacity, setTopLeftOpacity] = useState(1);
+  const [topRightOpacity, setTopRightOpacity] = useState(1);
+  const [bottomLeftOpacity, setBottomLeftOpacity] = useState(1);
+  const [bottomRightOpacity, setBottomRightOpacity] = useState(1);
   const [topLeftRadius, setTopLeftRadius] = useState(0);
   const [topRightRadius, setTopRightRadius] = useState(0);
   const [bottomLeftRadius, setBottomLeftRadius] = useState(0);
@@ -896,26 +897,26 @@ export default function AwardCertificate() {
                           Font Settings
                         </h3>
                         <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                            <input
-                              type="checkbox"
-                              id="letterSpacing"
-                              checked={letterSpacing}
-                              onChange={() => {
-                                setLetterSpacing(!letterSpacing);
-                              }}
-                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <Label htmlFor="letterSpacing" className="ml-3">
-                              <div className="space-y-1">
-                                <p className="text-sm font-medium">
-                                  Letter Spacing
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  Toggle wider letter spacing in titles
-                                </p>
-                              </div>
-                            </Label>
-                          </div>
+                          <input
+                            type="checkbox"
+                            id="letterSpacing"
+                            checked={letterSpacing}
+                            onChange={() => {
+                              setLetterSpacing(!letterSpacing);
+                            }}
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <Label htmlFor="letterSpacing" className="ml-3">
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium">
+                                Letter Spacing
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Toggle wider letter spacing in titles
+                              </p>
+                            </div>
+                          </Label>
+                        </div>
                         <div className="space-y-4">
                           {[
                             {
@@ -1029,7 +1030,7 @@ export default function AwardCertificate() {
                                   : "border-gray-200 hover:border-gray-300"
                               }`}
                             >
-                              <img
+                              <Image
                                 src={bg.url}
                                 alt={bg.name}
                                 className="w-full h-full object-cover"
@@ -1095,10 +1096,12 @@ export default function AwardCertificate() {
                             </label>
                             <div className="grid grid-cols-2 gap-3">
                               <label className="text-sm">Top Left : </label>
-                              <FileUpload
-                                onFileSelect={handleTopLeftUpload}
-                                label="Top Left"
-                              />
+                              {!topLeftImage && (
+                                <FileUpload
+                                  onFileSelect={handleTopLeftUpload}
+                                  label="Top Left"
+                                />
+                              )}
                               {topLeftImage && (
                                 <Button
                                   onClick={() => setTopLeftImage(null)}
@@ -1110,10 +1113,12 @@ export default function AwardCertificate() {
                                 </Button>
                               )}
                               <label className="text-sm">Top Right : </label>
-                              <FileUpload
-                                onFileSelect={handleTopRightUpload}
-                                label="Top Right"
-                              />
+                              {!topRightImage && (
+                                <FileUpload
+                                  onFileSelect={handleTopRightUpload}
+                                  label="Top Right"
+                                />
+                              )}
                               {topRightImage && (
                                 <Button
                                   onClick={() => setTopRightImage(null)}
@@ -1125,10 +1130,12 @@ export default function AwardCertificate() {
                                 </Button>
                               )}
                               <label className="text-sm">Bottom Left : </label>
-                              <FileUpload
-                                onFileSelect={handleBottomLeftUpload}
-                                label="Bottom Left"
-                              />
+                              {!bottomLeftImage && (
+                                <FileUpload
+                                  onFileSelect={handleBottomLeftUpload}
+                                  label="Bottom Left"
+                                />
+                              )}
                               {bottomLeftImage && (
                                 <Button
                                   onClick={() => setBottomLeftImage(null)}
@@ -1140,10 +1147,12 @@ export default function AwardCertificate() {
                                 </Button>
                               )}
                               <label className="text-sm">Bottom Right : </label>
-                              <FileUpload
-                                onFileSelect={handleBottomRightUpload}
-                                label="Bottom Right"
-                              />
+                              {!bottomRightImage && (
+                                <FileUpload
+                                  onFileSelect={handleBottomRightUpload}
+                                  label="Bottom Right"
+                                />
+                              )}
                               {bottomRightImage && (
                                 <Button
                                   onClick={() => setBottomRightImage(null)}
@@ -2475,7 +2484,9 @@ export default function AwardCertificate() {
                               />
                             )}
                             <h1
-                              className={`font-bold ${letterSpacing ? 'tracking-wider' : ''} ${
+                              className={`font-bold ${
+                                letterSpacing ? "tracking-wider" : ""
+                              } ${
                                 certificateStyle === "wide"
                                   ? "text-5xl"
                                   : "text-4xl"
