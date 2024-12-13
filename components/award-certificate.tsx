@@ -22,6 +22,7 @@ import {
   Settings2,
   CheckCircle2,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -336,6 +337,7 @@ export default function AwardCertificate() {
   ];
 
   const [letterSpacing, setLetterSpacing] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleBackgroundUpload = (file: File) => {
     const reader = new FileReader();
@@ -372,53 +374,61 @@ export default function AwardCertificate() {
   };
 
   const exportToPDF = async () => {
-    const pdf = new jsPDF({
-      orientation: certificateStyle === "wide" ? "landscape" : "portrait",
-      unit: "in",
-      format: certificateStyle === "wide" ? [13, 8.5] : [8.5, 11],
-    });
+    try {
+      setIsExporting(true);
+      const pdf = new jsPDF({
+        orientation: certificateStyle === "wide" ? "landscape" : "portrait",
+        unit: "in",
+        format: certificateStyle === "wide" ? [13, 8.5] : [8.5, 11],
+      });
 
-    // Calculate dimensions for optimal fit
-    const pageWidth = certificateStyle === "wide" ? 13 : 8.5;
-    const pageHeight = certificateStyle === "wide" ? 8.5 : 11;
-    
-    for (let i = 0; i < awards.length; i++) {
-      // Add new page for each certificate in landscape, or every 2 certificates in portrait
-      if (i > 0 && (certificateStyle === "wide" || i % 2 === 0)) {
-        pdf.addPage();
-      }
-
-      const certificate = certificatesRef.current[i];
-      if (certificate) {
-        const canvas = await html2canvas(certificate, {
-          scale: 2,
-          logging: false,
-          useCORS: true,
-        });
-
-        // Calculate dimensions and positions
-        let imgWidth, imgHeight, xPosition, yPosition;
-
-        if (certificateStyle === "wide") {
-          // For landscape: use full width
-          imgWidth = pageWidth;
-          imgHeight = pageHeight;
-          xPosition = 0;
-          yPosition = 0;
-        } else {
-          // For portrait: fit two certificates per page with only center gap
-          imgWidth = pageWidth;
-          imgHeight = pageHeight / 2 - 0.25; // 0.25 inch center gap
-          xPosition = 0;
-          yPosition = i % 2 === 0 ? 0 : pageHeight / 2 + 0.25;
+      const pageWidth = certificateStyle === "wide" ? 13 : 8.5;
+      const pageHeight = certificateStyle === "wide" ? 8.5 : 11;
+      
+      for (let i = 0; i < awards.length; i++) {
+        if (i > 0 && (certificateStyle === "wide" || i % 2 === 0)) {
+          pdf.addPage();
         }
 
-        const imgData = canvas.toDataURL("image/png");
-        pdf.addImage(imgData, "PNG", xPosition, yPosition, imgWidth, imgHeight);
-      }
-    }
+        const certificate = certificatesRef.current[i];
+        if (certificate) {
+          const canvas = await html2canvas(certificate, {
+            scale: 2,
+            logging: false,
+            useCORS: true,
+          });
 
-    pdf.save("awards.pdf");
+          let imgWidth, imgHeight, xPosition, yPosition;
+
+          if (certificateStyle === "wide") {
+            imgWidth = pageWidth;
+            imgHeight = pageHeight;
+            xPosition = 0;
+            yPosition = 0;
+          } else {
+            imgWidth = pageWidth;
+            imgHeight = pageHeight / 2 - 0.25;
+            xPosition = 0;
+            yPosition = i % 2 === 0 ? 0 : pageHeight / 2 + 0.25;
+          }
+
+          const imgData = canvas.toDataURL("image/png");
+          pdf.addImage(imgData, "PNG", xPosition, yPosition, imgWidth, imgHeight);
+        }
+      }
+
+      pdf.save("awards.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      setImportAlert({
+        show: true,
+        type: "error",
+        title: "Export Failed",
+        message: "Failed to generate PDF. Please try again.",
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const addAward = () => {
@@ -2098,9 +2108,16 @@ export default function AwardCertificate() {
                           <Button
                             onClick={exportToPDF}
                             className="w-full bg-green-600 hover:bg-green-700"
+                            disabled={isExporting}
                           >
-                            <Download className="w-4 h-4 mr-2" />
-                            Export Certificates PDF
+                            {isExporting ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <>
+                                <Download className="w-4 h-4 mr-2" />
+                                Export Certificates PDF
+                              </>
+                            )}
                           </Button>
                         </div>
                       </div>
@@ -2698,6 +2715,23 @@ export default function AwardCertificate() {
           </div>
         </div>
       </div>
+      {isExporting && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-sm text-center space-y-4">
+            <Loader2 className="w-12 h-12 mx-auto text-blue-600 animate-spin" />
+            <h3 className="text-xl font-bold text-gray-900">
+              Generating PDF
+            </h3>
+            <p className="text-gray-600">
+              Processing {awards.length} certificate{awards.length !== 1 ? 's' : ''}...
+            </p>
+            <p className="text-sm text-gray-500">
+              Please wait while we prepare your certificates.
+              This may take a few moments.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
