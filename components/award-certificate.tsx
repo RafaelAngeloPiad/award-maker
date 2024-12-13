@@ -378,12 +378,10 @@ export default function AwardCertificate() {
       format: certificateStyle === "wide" ? [13, 8.5] : [8.5, 11],
     });
 
-    // Use consistent margins and calculate usable space
-    const margin = 1; // 1 inch margin
+    // Calculate dimensions for optimal fit
     const pageWidth = certificateStyle === "wide" ? 13 : 8.5;
     const pageHeight = certificateStyle === "wide" ? 8.5 : 11;
-    const usableWidth = pageWidth - 2 * margin;
-
+    
     for (let i = 0; i < awards.length; i++) {
       // Add new page for each certificate in landscape, or every 2 certificates in portrait
       if (i > 0 && (certificateStyle === "wide" || i % 2 === 0)) {
@@ -398,21 +396,21 @@ export default function AwardCertificate() {
           useCORS: true,
         });
 
-        // Calculate dimensions to maintain 3:2 aspect ratio
+        // Calculate dimensions and positions
         let imgWidth, imgHeight, xPosition, yPosition;
 
         if (certificateStyle === "wide") {
-          // For landscape: use full usable width and calculate height
-          imgWidth = usableWidth;
-          imgHeight = (imgWidth * 2) / 3; // maintain 3:2 ratio
-          xPosition = margin;
-          yPosition = (pageHeight - imgHeight) / 2; // center vertically
+          // For landscape: use full width
+          imgWidth = pageWidth;
+          imgHeight = pageHeight;
+          xPosition = 0;
+          yPosition = 0;
         } else {
-          // For portrait: fit two certificates per page
-          imgWidth = usableWidth;
-          imgHeight = (imgWidth * 2) / 3; // maintain 3:2 ratio
-          xPosition = margin;
-          yPosition = i % 2 === 0 ? margin : margin + imgHeight + 0.5; // 0.5 inch gap between certificates
+          // For portrait: fit two certificates per page with only center gap
+          imgWidth = pageWidth;
+          imgHeight = pageHeight / 2 - 0.25; // 0.25 inch center gap
+          xPosition = 0;
+          yPosition = i % 2 === 0 ? 0 : pageHeight / 2 + 0.25;
         }
 
         const imgData = canvas.toDataURL("image/png");
